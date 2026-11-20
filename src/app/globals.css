@@ -1,0 +1,421 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-geist-sans);
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
+  --color-info: var(--info);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-glow: var(--glow);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.04);
+  --shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.05), 0 1px 3px 0 oklch(0 0 0 / 0.04);
+  --shadow-md: 0 2px 4px -1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.05);
+  --shadow-lg: 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -4px oklch(0 0 0 / 0.06);
+  --shadow-xl: 0 8px 16px -4px oklch(0 0 0 / 0.1), 0 24px 48px -8px oklch(0 0 0 / 0.08);
+  --shadow-2xl: 0 16px 32px -8px oklch(0 0 0 / 0.12), 0 48px 96px -16px oklch(0 0 0 / 0.1);
+  --shadow-glow: 0 0 0 1px var(--ring), 0 0 24px -4px var(--ring);
+  --shadow-glow-primary:
+    0 0 0 1px oklch(0.596 0.145 163.225 / 0.2), 0 8px 32px -8px oklch(0.596 0.145 163.225 / 0.25);
+  --shadow-glow-highlight:
+    0 0 0 1px oklch(0.75 0.15 85 / 0.2), 0 8px 32px -8px oklch(0.75 0.15 85 / 0.2);
+  --shadow-card-hover: 0 4px 12px -2px oklch(0 0 0 / 0.06), 0 16px 32px -8px oklch(0 0 0 / 0.08);
+}
+
+:root {
+  /* Surfaces — crisp white with cool-neutral subtones */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0.005 285);
+  --surface: oklch(0.985 0.002 285);
+  --surface-foreground: oklch(0.145 0.005 285);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0.005 285);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0.005 285);
+
+  /* Primary — Emerald 600 (Linear-style accent) */
+  --primary: oklch(0.596 0.145 163.225);
+  --primary-foreground: oklch(0.985 0 0);
+
+  /* Highlight — warm amber for badges, CTAs, ribbons */
+  --highlight: oklch(0.75 0.15 85);
+  --highlight-foreground: oklch(0.25 0.02 85);
+
+  /* Glow — soft teal-cyan for ambient effects */
+  --glow: oklch(0.78 0.13 200);
+
+  /* Secondary / Muted — soft cool grays */
+  --secondary: oklch(0.97 0.003 285);
+  --secondary-foreground: oklch(0.205 0.005 285);
+  --muted: oklch(0.97 0.003 285);
+  --muted-foreground: oklch(0.508 0.008 285);
+  --accent: oklch(0.96 0.012 163);
+  --accent-foreground: oklch(0.35 0.09 163);
+
+  /* Status colors */
+  --destructive: oklch(0.577 0.245 27.325);
+  --success: oklch(0.596 0.145 163.225);
+  --warning: oklch(0.745 0.172 75.6);
+  --info: oklch(0.628 0.178 254);
+
+  /* Borders & inputs — barely-there contrast */
+  --border: oklch(0.92 0.004 285);
+  --input: oklch(0.92 0.004 285);
+  --ring: oklch(0.596 0.145 163.225);
+
+  /* Charts — emerald-led palette */
+  --chart-1: oklch(0.596 0.145 163.225);
+  --chart-2: oklch(0.628 0.178 254);
+  --chart-3: oklch(0.745 0.172 75.6);
+  --chart-4: oklch(0.65 0.2 320);
+  --chart-5: oklch(0.577 0.245 27.325);
+
+  --radius: 0.625rem;
+
+  /* Sidebar — slightly off-white panel */
+  --sidebar: oklch(0.985 0.002 285);
+  --sidebar-foreground: oklch(0.145 0.005 285);
+  --sidebar-primary: oklch(0.596 0.145 163.225);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.96 0.003 285);
+  --sidebar-accent-foreground: oklch(0.205 0.005 285);
+  --sidebar-border: oklch(0.92 0.004 285);
+  --sidebar-ring: oklch(0.596 0.145 163.225);
+}
+
+.dark {
+  /* Surfaces — rich blacks with cool tint (Linear-style) */
+  --background: oklch(0.135 0.006 285);
+  --foreground: oklch(0.985 0 0);
+  --surface: oklch(0.165 0.006 285);
+  --surface-foreground: oklch(0.985 0 0);
+  --card: oklch(0.17 0.006 285);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.185 0.006 285);
+  --popover-foreground: oklch(0.985 0 0);
+
+  /* Primary — Emerald 400 (brighter for dark surfaces) */
+  --primary: oklch(0.765 0.177 163.223);
+  --primary-foreground: oklch(0.16 0.04 163);
+
+  /* Highlight — warm amber brighter for dark */
+  --highlight: oklch(0.82 0.15 85);
+  --highlight-foreground: oklch(0.2 0.02 85);
+
+  /* Glow — brighter teal-cyan */
+  --glow: oklch(0.82 0.12 200);
+
+  --secondary: oklch(0.225 0.006 285);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.225 0.006 285);
+  --muted-foreground: oklch(0.66 0.008 285);
+  --accent: oklch(0.27 0.04 163);
+  --accent-foreground: oklch(0.92 0.08 163);
+
+  --destructive: oklch(0.704 0.191 22.216);
+  --success: oklch(0.765 0.177 163.223);
+  --warning: oklch(0.82 0.165 84);
+  --info: oklch(0.7 0.165 254);
+
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.765 0.177 163.223);
+
+  --chart-1: oklch(0.765 0.177 163.223);
+  --chart-2: oklch(0.7 0.165 254);
+  --chart-3: oklch(0.82 0.165 84);
+  --chart-4: oklch(0.72 0.18 320);
+  --chart-5: oklch(0.704 0.191 22.216);
+
+  --sidebar: oklch(0.155 0.006 285);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.765 0.177 163.223);
+  --sidebar-primary-foreground: oklch(0.16 0.04 163);
+  --sidebar-accent: oklch(0.22 0.006 285);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 6%);
+  --sidebar-ring: oklch(0.765 0.177 163.223);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans text-sm leading-5 antialiased;
+    font-feature-settings: 'cv11', 'ss01', 'ss03';
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply tracking-tight;
+    letter-spacing: -0.015em;
+  }
+  h1 {
+    letter-spacing: -0.025em;
+  }
+}
+
+@layer components {
+  /* Subtle gradient surface — used for hero cards, callouts */
+  .surface-gradient {
+    background: linear-gradient(180deg, var(--surface) 0%, var(--background) 100%);
+  }
+
+  /* Glassmorphism panel — for sticky headers, popovers */
+  .glass {
+    background: color-mix(in oklch, var(--background) 75%, transparent);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+  }
+
+  /* Glass panel with border — for floating cards, overlays */
+  .glass-panel {
+    background: color-mix(in oklch, var(--card) 88%, transparent);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid color-mix(in oklch, var(--border) 80%, transparent);
+  }
+
+  /* Hairline divider — 1px subtle border */
+  .hairline {
+    border-color: color-mix(in oklch, var(--border) 100%, transparent);
+  }
+
+  /* Focus ring with emerald glow */
+  .focus-ring {
+    @apply outline-none ring-2 ring-ring/40 ring-offset-2 ring-offset-background;
+  }
+
+  /* Soft inset shadow for inputs */
+  .shadow-inset {
+    box-shadow: inset 0 1px 2px 0 oklch(0 0 0 / 0.04);
+  }
+
+  /* Gradient border — for premium cards */
+  .gradient-border {
+    position: relative;
+    background-clip: padding-box;
+    border: 1px solid transparent;
+  }
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    margin: -1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklch, var(--primary) 30%, transparent),
+      color-mix(in oklch, var(--glow) 20%, transparent) 50%,
+      transparent 100%
+    );
+  }
+}
+
+@layer utilities {
+  /* Text gradient — for hero titles */
+  .text-gradient {
+    background: linear-gradient(
+      135deg,
+      var(--foreground) 0%,
+      color-mix(in oklch, var(--foreground) 60%, var(--primary)) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Brand gradient text — emerald to glow */
+  .text-gradient-brand {
+    background: linear-gradient(
+      135deg,
+      var(--primary) 0%,
+      color-mix(in oklch, var(--primary) 50%, var(--glow)) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Warm gradient text — for highlight accents */
+  .text-gradient-warm {
+    background: linear-gradient(
+      135deg,
+      var(--highlight) 0%,
+      color-mix(in oklch, var(--highlight) 60%, var(--primary)) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Mesh gradient background — for hero sections */
+  .bg-mesh {
+    background-color: var(--background);
+    background-image:
+      radial-gradient(
+        at 12% 18%,
+        color-mix(in oklch, var(--primary) 10%, transparent) 0px,
+        transparent 50%
+      ),
+      radial-gradient(
+        at 88% 8%,
+        color-mix(in oklch, var(--glow) 10%, transparent) 0px,
+        transparent 45%
+      ),
+      radial-gradient(
+        at 75% 82%,
+        color-mix(in oklch, var(--primary) 6%, transparent) 0px,
+        transparent 50%
+      ),
+      radial-gradient(
+        at 25% 92%,
+        color-mix(in oklch, var(--highlight) 5%, transparent) 0px,
+        transparent 40%
+      );
+  }
+
+  /* Subtle dot pattern background */
+  .bg-dots {
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      color-mix(in oklch, var(--foreground) 8%, transparent) 1px,
+      transparent 0
+    );
+    background-size: 24px 24px;
+  }
+
+  /* Subtle grid pattern background */
+  .bg-grid {
+    background-image:
+      linear-gradient(
+        to right,
+        color-mix(in oklch, var(--foreground) 5%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        color-mix(in oklch, var(--foreground) 5%, transparent) 1px,
+        transparent 1px
+      );
+    background-size: 32px 32px;
+  }
+
+  /* Animated shimmer — for skeleton/loading states */
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--muted) 0%,
+      color-mix(in oklch, var(--muted) 50%, var(--background)) 50%,
+      var(--muted) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
+  }
+
+  /* Marquee scroll — for trust logos */
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+
+  /* Float animation — for hero product image */
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  /* Status text colors */
+  .text-success {
+    color: var(--success);
+  }
+  .text-warning {
+    color: var(--warning);
+  }
+  .text-info {
+    color: var(--info);
+  }
+}
