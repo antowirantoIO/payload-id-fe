@@ -1,6 +1,7 @@
 'use client'
 
 import { Eye, EyeOff } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 
@@ -15,6 +16,7 @@ interface PasswordInputProps extends React.ComponentProps<'input'> {
  */
 export function PasswordInput({ showToggle = true, className, ...props }: PasswordInputProps) {
   const [visible, setVisible] = useState(false)
+  const t = useTranslations('auth.access')
 
   if (!showToggle) {
     return <Input type="password" className={className} {...props} />
@@ -31,9 +33,9 @@ export function PasswordInput({ showToggle = true, className, ...props }: Passwo
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
-        className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
+        className="absolute top-1/2 right-0 flex size-11 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         tabIndex={-1}
-        aria-label={visible ? 'Sembunyikan password' : 'Tampilkan password'}
+        aria-label={t(visible ? 'hidePassword' : 'showPassword')}
       >
         {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
       </button>

@@ -1,6 +1,7 @@
 'use client'
 
 import { TrashIcon } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -12,7 +13,7 @@ import {
 import { FilterValueInput } from './filter-value-input'
 import { FieldTypeIcon } from './icons'
 import type { FieldConfig, FilterCondition } from './lib/types'
-import { OPERATOR_LABELS, OPERATORS_BY_TYPE } from './lib/types'
+import { OPERATORS_BY_TYPE } from './lib/types'
 
 interface FilterConditionRowProps {
   condition: FilterCondition
@@ -27,6 +28,7 @@ export function FilterConditionRow({
   onChange,
   onRemove,
 }: FilterConditionRowProps) {
+  const t = useTranslations('table')
   const field = fieldsConfig.find((f) => f.id === condition.field) ?? fieldsConfig[0]
   if (!field) return null
 
@@ -49,7 +51,7 @@ export function FilterConditionRow({
           })
         }}
       >
-        <SelectTrigger aria-label="Filter field" size="sm" className="h-9 w-[160px] text-xs">
+        <SelectTrigger aria-label={t('filterField')} size="sm" className="h-9 w-[160px] text-xs">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -74,13 +76,13 @@ export function FilterConditionRow({
           })
         }
       >
-        <SelectTrigger aria-label="Filter operator" size="sm" className="h-9 w-[150px] text-xs">
+        <SelectTrigger aria-label={t('filterOperator')} size="sm" className="h-9 w-[150px] text-xs">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {operators.map((op) => (
             <SelectItem key={op} value={op}>
-              {OPERATOR_LABELS[op]}
+              {t(`operators.${op}`)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -98,7 +100,7 @@ export function FilterConditionRow({
         size="icon-sm"
         onClick={onRemove}
         className="text-muted-foreground hover:text-destructive ml-auto h-8 w-8"
-        aria-label="Remove condition"
+        aria-label={t('removeCondition')}
       >
         <TrashIcon className="size-3.5" />
       </Button>

@@ -2,7 +2,8 @@
 
 import type { ColumnDef } from '@tanstack/react-table'
 import { DataTableColumnHeader } from '@/components/shared/data-table/data-table-column-header'
-import { Checkbox } from '@/components/ui/checkbox'
+import { selectColumn } from '@/components/shared/data-table/select-column'
+import { SemanticStatus } from '@/components/shared/semantic-status'
 import { Link } from '@/i18n/navigation'
 import type { Merchant } from '../lib/model'
 
@@ -22,45 +23,15 @@ const fields = [
   'legal_name',
   'updated_at',
 ] as const
-const labels: Record<(typeof fields)[number], string> = {
-  code: 'Merchant code',
-  created_at: 'Created (UTC)',
-  name: 'Business name',
-  tenant: 'Tenant',
-  status: 'Status',
-  tier: 'Tier',
-  business_type: 'Business type',
-  business_category: 'Category',
-  city: 'City',
-  settlement_mode: 'Settlement mode',
-  settlement_schedule: 'Schedule',
-  is_sandbox: 'Environment',
-  legal_name: 'Legal name',
-  updated_at: 'Updated (UTC)',
-}
-
-export const merchantColumns: ColumnDef<Merchant>[] = [
-  {
-    id: 'select',
-    size: 40,
-    enableSorting: false,
-    enableHiding: false,
-    header: ({ table }) => (
-      <Checkbox
-        aria-label="Select all merchants on this page"
-        checked={table.getIsAllPageRowsSelected()}
-        indeterminate={table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(Boolean(value))}
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        aria-label={`Select ${row.original.code}`}
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
-      />
-    ),
-  },
+export const buildMerchantColumns = (
+  t: (key: string, values?: Record<string, string>) => string,
+): ColumnDef<Merchant>[] => [
+  selectColumn<Merchant>({
+    pageLabel: t('selectPage'),
+    rowLabel: (row: Merchant) => t('selectRow', { code: row.code }),
+    label: t('selection'),
+    enableResizing: true,
+  }),
   ...fields.map(
     (key) =>
       ({
@@ -73,8 +44,10 @@ export const merchantColumns: ColumnDef<Merchant>[] = [
               : ['name', 'tenant', 'legal_name'].includes(key)
                 ? 220
                 : 160,
-        meta: { label: labels[key] },
-        header: ({ column }) => <DataTableColumnHeader column={column} title={labels[key]} />,
+        meta: { label: t(`fields.${key}`) },
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title={t(`fields.${key}`)} />
+        ),
         cell: ({ row }) =>
           key === 'code' ? (
             <Link
@@ -84,22 +57,29 @@ export const merchantColumns: ColumnDef<Merchant>[] = [
               {row.original.code}
             </Link>
           ) : key === 'status' ? (
-            <span
-              className={`inline-flex whitespace-nowrap rounded-sm border px-2 py-1 text-xs font-medium ${row.original.status === 'ACTIVE' ? 'border-emerald-700/20 bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200' : ['SUSPENDED', 'REJECTED', 'TERMINATED'].includes(row.original.status) ? 'border-red-700/20 bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-200' : 'border-border bg-muted text-foreground'}`}
-            >
-              {row.original.status.replaceAll('_', ' ')}
-            </span>
+            <SemanticStatus
+              label={t(`statuses.${row.original.status}`)}
+              tone={
+                row.original.status === 'ACTIVE'
+                  ? 'success'
+                  : ['SUSPENDED', 'REJECTED', 'TERMINATED'].includes(row.original.status)
+                    ? 'danger'
+                    : ['PENDING_KYC', 'PENDING_APPROVAL'].includes(row.original.status)
+                      ? 'warning'
+                      : 'neutral'
+              }
+            />
           ) : (
             <span
               className={`whitespace-nowrap text-sm ${key.endsWith('_at') ? 'tabular-nums' : ''}`}
             >
               {key === 'is_sandbox'
                 ? row.original.is_sandbox
-                  ? 'Sandbox'
-                  : 'Production'
+                  ? t('environments.sandbox')
+                  : t('environments.production')
                 : key.endsWith('_at')
                   ? row.original[key].replace('T', ' ').slice(0, 19)
-                  : row.original[key] || 'Not provided'}
+                  : row.original[key] || t('notProvided')}
             </span>
           ),
       }) satisfies ColumnDef<Merchant>,

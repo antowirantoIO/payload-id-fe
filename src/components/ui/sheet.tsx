@@ -36,7 +36,7 @@ function SheetOverlay({ className, ...props }: DrawerPrimitive.Backdrop.Props) {
     <DrawerPrimitive.Backdrop
       data-slot="sheet-overlay"
       className={cn(
-        'fixed inset-0 z-50 bg-foreground/30 backdrop-blur-sm data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0',
+        'fixed inset-0 z-50 bg-foreground/30 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0',
         className,
       )}
       {...props}
@@ -64,7 +64,7 @@ function SheetContent({
           data-slot="sheet-content"
           data-side={side}
           className={cn(
-            'pointer-events-auto fixed inset-y-0 z-50 flex h-full w-full max-w-lg flex-col gap-0 overflow-hidden border-border/60 bg-background shadow-2xl outline-none transition ease-in-out',
+            'pointer-events-auto fixed inset-y-0 z-50 flex h-full w-full max-w-lg flex-col gap-0 overflow-hidden border-border bg-card shadow-2xl outline-none transition ease-in-out',
             'data-open:animate-in data-open:duration-200 data-closed:animate-out data-closed:duration-150',
             side === 'right' &&
               'right-0 data-open:slide-in-from-right data-closed:slide-out-to-right border-l',

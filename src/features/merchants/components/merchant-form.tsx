@@ -1,33 +1,47 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { businessTypes, type Merchant, tenants, tiers } from '../lib/model'
-
-export const selectClass =
-  'h-10 min-w-0 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-2 focus-visible:outline-ring'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { businessTypes, type Merchant, tiers } from '../lib/model'
+import { validateMerchant } from '../lib/validate-merchant'
 
 export function MerchantForm({
   initial,
   existing,
+  tenants,
+  isSaving = false,
   onSave,
   onClose,
 }: {
   initial: Merchant
   existing: Merchant[]
+  tenants: { id: string; name: string }[]
+  isSaving?: boolean
   onSave: (merchant: Merchant) => void
   onClose: () => void
 }) {
+  const t = useTranslations('merchants')
   const [draft, setDraft] = useState(initial)
   const [error, setError] = useState('')
   const [step, setStep] = useState(0)
   const update = (key: keyof Merchant, value: string | boolean) =>
     setDraft((previous) => ({ ...previous, [key]: value }))
   const text = (key: keyof Merchant, label: string, required = false, type = 'text') => (
-    <label htmlFor={`merchant-${key}`} className="grid gap-2 text-sm" key={key}>
-      {label}
-      {required ? ' *' : ''}
+    <div className="grid gap-2 text-sm" key={key}>
+      <Label htmlFor={`merchant-${key}`}>
+        {label}
+        {required ? ' *' : ''}
+      </Label>
       <Input
         id={`merchant-${key}`}
         name={key}
@@ -38,72 +52,91 @@ export function MerchantForm({
         disabled={key === 'code' && !!initial.id}
         onChange={(event) => update(key, event.target.value)}
       />
-    </label>
+    </div>
   )
   const select = (key: keyof Merchant, label: string, options: readonly string[]) => (
-    <label className="grid gap-2 text-sm" key={key}>
-      {label}
-      <select
-        className={selectClass}
+    <div className="grid gap-2 text-sm" key={key}>
+      <Label htmlFor={`merchant-${key}`}>{label}</Label>
+      <Select
         value={String(draft[key])}
         disabled={key === 'tenant' && !!initial.id}
-        onChange={(event) => update(key, event.target.value)}
+        onValueChange={(value) => {
+          if (value !== null) update(key, value)
+        }}
       >
-        {options.map((option) => (
-          <option key={option}>{option}</option>
-        ))}
-      </select>
-    </label>
+        <SelectTrigger id={`merchant-${key}`} className="h-10 w-full rounded-md">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem key={option} value={option}>
+              {option}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  )
+  // Tenants come from IAM: keep both the display name and the UUID used by the API.
+  const tenantSelect = (
+    <div className="grid gap-2 text-sm">
+      <Label htmlFor="merchant-tenant">{t('fields.tenant')}</Label>
+      <Select
+        value={draft.tenant_id}
+        disabled={!!initial.id || tenants.length === 0}
+        onValueChange={(value) => {
+          if (value === null) return
+          const tenant = tenants.find((item) => item.id === value)
+          setDraft((previous) => ({
+            ...previous,
+            tenant_id: value,
+            tenant: tenant?.name ?? previous.tenant,
+          }))
+        }}
+      >
+        <SelectTrigger id="merchant-tenant" className="h-10 w-full rounded-md">
+          <SelectValue placeholder={t('fields.tenant')} />
+        </SelectTrigger>
+        <SelectContent>
+          {tenants.map((tenant) => (
+            <SelectItem key={tenant.id} value={tenant.id}>
+              {tenant.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   )
   return (
-    <section className="rounded-md border bg-card p-4 sm:p-6">
+    <section className="rounded-lg border bg-card p-4 sm:p-6">
       <div className="flex flex-wrap gap-2 border-b pb-3">
-        {['Business', 'Address & registration', 'Settlement & integration'].map((label, index) => (
-          <Button
-            key={label}
-            variant={step === index ? 'secondary' : 'ghost'}
-            size="sm"
-            onClick={() => setStep(index)}
-          >
-            {index + 1}. {label}
-          </Button>
-        ))}
+        {(['business', 'addressRegistration', 'settlementIntegration'] as const).map(
+          (id, index) => (
+            <Button
+              key={id}
+              variant={step === index ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => setStep(index)}
+            >
+              {index + 1}. {t(id)}
+            </Button>
+          ),
+        )}
       </div>
       <form
         onSubmit={(event) => {
           event.preventDefault()
-          if (!draft.code.trim() || !draft.name.trim() || !draft.business_category.trim()) {
-            setError('Complete merchant code, business name and category in Business.')
-            setStep(0)
-            return
-          }
-          if (
-            existing.some(
-              (row) =>
-                row.id !== initial.id && row.code.toLowerCase() === draft.code.trim().toLowerCase(),
+          const result = validateMerchant(draft, initial, existing)
+          if (result.error) {
+            setError(
+              result.error.key === 'https'
+                ? t('validationHttps', { field: t(`urlFields.${result.error.field}`) })
+                : t(result.error.key === 'required' ? 'validationRequired' : 'validationDuplicate'),
             )
-          ) {
-            setError('This merchant code is already in use.')
-            setStep(0)
+            setStep(result.error.step)
             return
           }
-          for (const key of ['website', 'callback_url', 'callback_url_sandbox'] as const) {
-            if (!draft[key]) continue
-            try {
-              const url = new URL(draft[key])
-              if (url.protocol !== 'https:') throw new Error('protocol')
-            } catch {
-              setError(`${key.replaceAll('_', ' ')} must be a valid HTTPS URL.`)
-              setStep(key === 'website' ? 1 : 2)
-              return
-            }
-          }
-          onSave({
-            ...draft,
-            code: draft.code.trim(),
-            name: draft.name.trim(),
-            business_category: draft.business_category.trim(),
-          })
+          onSave(result.merchant)
         }}
         className="space-y-5"
       >
@@ -112,42 +145,42 @@ export function MerchantForm({
           hidden={step !== 0}
           style={step !== 0 ? { display: 'none' } : undefined}
         >
-          {select('tenant', 'Tenant', tenants)}
-          {text('code', 'Merchant code')}
-          {text('name', 'Business name')}
-          {text('legal_name', 'Legal name')}
-          {select('business_type', 'Business type', businessTypes)}
-          {text('business_category', 'Business category')}
-          {select('tier', 'Tier', tiers)}
+          {tenantSelect}
+          {text('code', t('fields.code'))}
+          {text('name', t('fields.name'))}
+          {text('legal_name', t('fields.legal_name'))}
+          {select('business_type', t('fields.business_type'), businessTypes)}
+          {text('business_category', t('fields.formCategory'))}
+          {select('tier', t('fields.tier'), tiers)}
         </div>
         <div
           className="grid gap-4 sm:grid-cols-2"
           style={step !== 1 ? { display: 'none' } : undefined}
         >
-          {text('address', 'Address')}
-          {text('city', 'City')}
-          {text('province', 'Province')}
-          {text('postal_code', 'Postal code')}
-          {text('npwp', 'NPWP')}
-          {text('nib', 'NIB')}
-          {text('website', 'Website')}
+          {text('address', t('fields.address'))}
+          {text('city', t('fields.city'))}
+          {text('province', t('fields.province'))}
+          {text('postal_code', t('fields.postal_code'))}
+          {text('npwp', t('fields.npwp'))}
+          {text('nib', t('fields.nib'))}
+          {text('website', t('fields.website'))}
         </div>
         <div
           className="grid gap-4 sm:grid-cols-2"
           style={step !== 2 ? { display: 'none' } : undefined}
         >
-          {select('settlement_mode', 'Settlement mode', ['BANK', 'WALLET'])}
-          {select('settlement_schedule', 'Settlement schedule', ['H+1', 'H+2', 'H+3', 'MANUAL'])}
-          {text('callback_url', 'Production callback URL')}
-          {text('callback_url_sandbox', 'Sandbox callback URL')}
-          {text('ip_whitelist', 'IP whitelist (comma-separated)')}
+          {select('settlement_mode', t('fields.settlement_mode'), ['BANK', 'WALLET'])}
+          {select('settlement_schedule', t('fields.formSchedule'), ['H+1', 'H+2', 'H+3', 'MANUAL'])}
+          {text('callback_url', t('fields.callback_url'))}
+          {text('callback_url_sandbox', t('fields.callback_url_sandbox'))}
+          {text('ip_whitelist', t('fields.formIp'))}
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={draft.is_sandbox}
               onChange={(event) => update('is_sandbox', event.target.checked)}
             />
-            Sandbox environment
+            {t('sandboxEnvironment')}
           </label>
         </div>
         {error && (
@@ -155,25 +188,23 @@ export function MerchantForm({
             {error}
           </p>
         )}
-        <p className="text-xs text-muted-foreground">
-          Required: merchant code, business name, business category. New merchants start as Draft.
-        </p>
+        <p className="text-xs text-muted-foreground">{t('requiredHint')}</p>
         <div className="flex flex-wrap justify-end gap-2">
           <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
+            {t('cancel')}
           </Button>
           {step > 0 && (
             <Button type="button" variant="outline" onClick={() => setStep((value) => value - 1)}>
-              Back
+              {t('back')}
             </Button>
           )}
           {step < 2 ? (
             <Button key="continue" type="button" onClick={() => setStep((value) => value + 1)}>
-              Continue
+              {t('continue')}
             </Button>
           ) : (
-            <Button key="save" type="submit">
-              Save merchant
+            <Button key="save" type="submit" disabled={isSaving}>
+              {t('saveMerchant')}
             </Button>
           )}
         </div>

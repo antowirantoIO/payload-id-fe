@@ -18,7 +18,8 @@
       "!**/pnpm-lock.yaml",
       "!**/next-env.d.ts",
       "!**/brief.md",
-      "!**/public"
+      "!**/public",
+      "!**/.claude/worktrees"
     ]
   },
   "formatter": {
@@ -53,7 +54,12 @@
         "useNodejsImportProtocol": "warn"
       },
       "suspicious": {
-        "noConsole": { "level": "warn", "options": { "allow": ["warn", "error"] } },
+        "noConsole": {
+          "level": "warn",
+          "options": {
+            "allow": ["warn", "error"]
+          }
+        },
         "noExplicitAny": "warn"
       },
       "correctness": {
@@ -81,93 +87,11 @@
       }
     },
     {
-      "includes": ["src/lib/safe-action.ts"],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noConsole": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": ["src/lib/observability/**"],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noConsole": "off"
-          }
-        }
-      }
-    },
-    {
       "includes": ["scripts/**"],
       "linter": {
         "rules": {
           "suspicious": {
             "noConsole": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": [
-        "src/features/master/lib/get-master-options.server.ts",
-        "src/features/master/lib/use-master-options.ts",
-        "src/features/master/lib/use-status-meta.ts"
-      ],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noExplicitAny": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": ["src/features/master/**/*-form-dialog.tsx"],
-      "linter": {
-        "rules": {
-          "a11y": {
-            "noLabelWithoutControl": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": ["src/features/passkey/**"],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noExplicitAny": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": ["src/features/quotations/api/quotation-transitions.ts"],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noExplicitAny": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": [
-        "src/features/quotations/components/edit-quotation-form.tsx",
-        "src/features/reports/components/**",
-        "src/features/roles/components/permission-matrix.tsx"
-      ],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noExplicitAny": "off",
-            "noArrayIndexKey": "off"
-          },
-          "a11y": {
-            "noLabelWithoutControl": "off"
           }
         }
       }

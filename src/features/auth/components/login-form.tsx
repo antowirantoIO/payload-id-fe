@@ -41,7 +41,7 @@ export function LoginForm() {
           autoComplete="username"
           required
           placeholder="you@example.com"
-          className="h-10"
+          className="h-10 rounded-md bg-background shadow-none"
         />
       </div>
       <div className="space-y-2">
@@ -55,7 +55,7 @@ export function LoginForm() {
           autoComplete="current-password"
           required
           maxLength={256}
-          className="h-10 pr-10"
+          className="h-10 rounded-md bg-background pr-12 shadow-none"
         />
       </div>
       {login.isError && (
@@ -63,7 +63,12 @@ export function LoginForm() {
           {t('loginError')}
         </p>
       )}
-      <Button type="submit" size="lg" disabled={login.isPending} className="w-full">
+      <Button
+        type="submit"
+        size="lg"
+        disabled={login.isPending}
+        className="min-h-11 w-full rounded-md shadow-none"
+      >
         {login.isPending ? (
           <Loader2 className="size-4 animate-spin" />
         ) : (

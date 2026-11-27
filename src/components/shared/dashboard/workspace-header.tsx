@@ -5,12 +5,12 @@ export function WorkspaceHeader({
   description,
   actions,
 }: {
-  title: string
+  title: ReactNode
   description?: ReactNode
   actions?: ReactNode
 }) {
   return (
-    <header className="flex flex-wrap items-start justify-between gap-4">
+    <header className="flex flex-wrap items-start justify-between gap-4 pb-1">
       <div className="min-w-0">
         <h1 className="text-2xl leading-8 font-semibold tracking-tight">{title}</h1>
         {description && <div className="mt-2 text-sm text-muted-foreground">{description}</div>}

@@ -21,6 +21,10 @@ export type TableWorkspaceProps<TData, TValue = unknown> = Omit<
   error?: Omit<ComponentProps<typeof WorkspaceError>, 'pending'>
   loadingLabel?: string
   notice?: ReactNode
+  sortLabel?: string
+  paginationLabel?: string
+  selectionLabel?: string
+  bulkBarVariant?: 'default' | 'soft'
 }
 
 /** Controlled composition: domain pages retain data fetching, authorization and mutation rules. */
@@ -31,6 +35,10 @@ export function TableWorkspace<TData, TValue = unknown>({
   error,
   loadingLabel,
   notice,
+  sortLabel,
+  paginationLabel,
+  selectionLabel,
+  bulkBarVariant,
   onDensityChange,
   density = 'normal',
   ...tableProps
@@ -55,6 +63,9 @@ export function TableWorkspace<TData, TValue = unknown>({
           stickyHeader
           enableColumnPinning
           enableColumnResize
+          paginationLabel={paginationLabel}
+          selectionLabel={selectionLabel}
+          bulkBarVariant={bulkBarVariant}
           errorContent={
             error ? <WorkspaceError {...error} pending={tableProps.isFetching} /> : undefined
           }
@@ -64,6 +75,7 @@ export function TableWorkspace<TData, TValue = unknown>({
               table={table}
               density={density}
               onDensityChange={onDensityChange}
+              sortLabel={sortLabel}
             />
           )}
         />

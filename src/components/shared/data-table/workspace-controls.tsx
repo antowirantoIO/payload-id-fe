@@ -38,7 +38,7 @@ export function MultiSearch({
   applyLabel?: string
   description?: string
 }) {
-  const t = useTranslations('transactions')
+  const t = useTranslations('table')
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState('')
   const terms = searchTerms(draft)
@@ -105,7 +105,7 @@ export function PeriodFilter({
   filter: FilterGroup
   onFilter: (value: FilterGroup) => void
 }) {
-  const t = useTranslations('transactions')
+  const t = useTranslations('table')
   const condition = filter.conditions.find((item) => item.id === 'quick-period')
   const [open, setOpen] = useState(false)
   const [start, setStart] = useState('')

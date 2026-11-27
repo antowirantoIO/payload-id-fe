@@ -25,6 +25,7 @@ export const tenants = ['Platform', 'Reseller West', 'Reseller East']
 export interface Merchant {
   id: string
   tenant: string
+  tenant_id: string
   code: string
   name: string
   legal_name: string
@@ -53,6 +54,7 @@ export function emptyMerchant(): Merchant {
   return {
     id: '',
     tenant: tenants[0],
+    tenant_id: '',
     code: '',
     name: '',
     legal_name: '',
@@ -89,6 +91,7 @@ export function makeMerchants(): Merchant[] {
       name: `${names[i % names.length]} ${i + 1}`,
       legal_name: `PT Business ${i + 1}`,
       tenant: tenants[i % tenants.length],
+      tenant_id: `demo-tenant-${i % tenants.length}`,
       business_category: names[i % names.length],
       status: statuses[i % statuses.length],
       tier: tiers[i % tiers.length],

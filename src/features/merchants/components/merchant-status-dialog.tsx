@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,7 +11,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { useMerchantDemo } from '../hooks/use-merchant-demo'
+import { Label } from '@/components/ui/label'
+import { useChangeMerchantStatus } from '../hooks/use-merchants'
 import type { MerchantStatus } from '../lib/model'
 
 export function MerchantStatusDialog({
@@ -22,11 +24,12 @@ export function MerchantStatusDialog({
   ids: string[]
   status: MerchantStatus
   onClose: () => void
-  onComplete: () => void
+  onComplete: (message?: string) => void
 }) {
+  const t = useTranslations('merchants')
   const [reason, setReason] = useState('')
   const [error, setError] = useState('')
-  const { changeStatus } = useMerchantDemo()
+  const mutation = useChangeMerchantStatus()
   return (
     <Dialog
       open
@@ -36,26 +39,32 @@ export function MerchantStatusDialog({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Change status to {status.replaceAll('_', ' ')}?</DialogTitle>
+          <DialogTitle>{t('changeStatusTitle', { status: t(`statuses.${status}`) })}</DialogTitle>
           <DialogDescription>
-            Change the status of {ids.length} selected merchant(s).
+            {t('changeStatusDescription', { count: ids.length })}
           </DialogDescription>
         </DialogHeader>
         <form
           className="space-y-4"
           onSubmit={(event) => {
             event.preventDefault()
-            if (!changeStatus(ids, status, reason)) {
-              setError(
-                'Status change rejected. Check eligibility and enter at least three non-space characters.',
-              )
+            if (reason.trim().length < 3) {
+              setError(t('statusRejected'))
               return
             }
-            onComplete()
+            setError('')
+            mutation.mutate(
+              { ids, status, reason: reason.trim() },
+              {
+                onSuccess: () => onComplete(),
+                onError: (cause) =>
+                  setError(cause instanceof Error ? cause.message : t('statusRejected')),
+              },
+            )
           }}
         >
-          <label htmlFor="merchant-status-reason" className="grid gap-2 text-sm">
-            Reason for change *
+          <div className="grid gap-2 text-sm">
+            <Label htmlFor="merchant-status-reason">{t('reasonForChange')}</Label>
             <Input
               id="merchant-status-reason"
               required
@@ -64,25 +73,23 @@ export function MerchantStatusDialog({
               value={reason}
               onChange={(event) => setReason(event.target.value)}
             />
-          </label>
+          </div>
           {error && (
             <p role="alert" className="text-sm text-destructive">
               {error}
             </p>
           )}
-          <p className="text-xs text-muted-foreground">
-            The reason is recorded in the activity log. Rejected and terminated merchants cannot be
-            reactivated.
-          </p>
+          <p className="text-xs text-muted-foreground">{t('reasonHint')}</p>
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+            <Button type="button" variant="outline" onClick={onClose} disabled={mutation.isPending}>
+              {t('cancel')}
             </Button>
             <Button
               type="submit"
+              disabled={mutation.isPending}
               variant={['REJECTED', 'TERMINATED'].includes(status) ? 'destructive' : 'default'}
             >
-              Confirm change
+              {t('confirmChange')}
             </Button>
           </div>
         </form>

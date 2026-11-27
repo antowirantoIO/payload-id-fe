@@ -2,11 +2,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { useLocale, useTranslations } from 'next-intl'
 import { z } from 'zod'
-import { canViewFeature, features } from '@/components/layout/features'
 import { Button } from '@/components/ui/button'
 import { Link } from '@/i18n/navigation'
 import { apiGet } from '@/lib/api/client'
 import { type WorkspaceProfile, workspaceFor } from '@/lib/auth/workspace'
+import { canViewFeature, features } from '@/lib/workspace/features'
 import { alertsSchema, summarySchema } from '../schemas/dashboard-contracts'
 
 const resultSchema = z.discriminatedUnion('workspace', [
@@ -42,7 +42,7 @@ export function OperationalOverview({ profile }: { profile: WorkspaceProfile }) 
   return (
     <section className="mt-6 space-y-6" aria-label={t('overview')}>
       <div>
-        <h2 className="text-xl font-semibold">{t(workspace ?? 'unknown')}</h2>
+        <h2 className="text-base font-semibold tracking-tight">{t(workspace ?? 'unknown')}</h2>
         <p className="mt-1 text-sm text-muted-foreground">{t('scope')}</p>
       </div>
       {!permitted ? (
@@ -50,14 +50,18 @@ export function OperationalOverview({ profile }: { profile: WorkspaceProfile }) 
       ) : query.isPending ? (
         <p role="status">{t('loading')}</p>
       ) : query.isError ? (
-        <div className="border bg-card p-5">
+        <div className="rounded-md border bg-card p-5">
           <p role="alert">{t('error')}</p>
-          <Button variant="outline" className="mt-3" onClick={() => query.refetch()}>
+          <Button
+            variant="outline"
+            className="mt-3 min-h-11 shadow-none"
+            onClick={() => query.refetch()}
+          >
             {t('retry')}
           </Button>
         </div>
       ) : query.data?.workspace === 'platform' ? (
-        <div className="border bg-card p-5">
+        <div className="rounded-md border bg-card p-5">
           <h3 className="font-semibold">{t('alerts')}</h3>
           {query.data.data.alerts.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">{t('noAlerts')}</p>
@@ -73,7 +77,7 @@ export function OperationalOverview({ profile }: { profile: WorkspaceProfile }) 
           )}
         </div>
       ) : summary ? (
-        <dl className="grid grid-cols-1 divide-y border bg-card sm:grid-cols-2 sm:divide-y-0 xl:grid-cols-4">
+        <dl className="grid grid-cols-1 overflow-hidden rounded-md border bg-card sm:grid-cols-2 xl:grid-cols-4">
           {(
             [
               'today_transactions',
@@ -82,9 +86,12 @@ export function OperationalOverview({ profile }: { profile: WorkspaceProfile }) 
               'month_transactions',
             ] as const
           ).map((key) => (
-            <div key={key} className="min-w-0 p-5">
+            <div
+              key={key}
+              className="min-w-0 border-b p-5 last:border-b-0 sm:border-b-0 sm:odd:border-r sm:nth-[-n+2]:border-b xl:border-r xl:last:border-r-0 xl:nth-[-n+2]:border-b-0"
+            >
               <dt className="text-sm text-muted-foreground">{t(key)}</dt>
-              <dd className="mt-3 break-words text-2xl font-semibold">
+              <dd className="mt-3 break-words text-2xl font-semibold tracking-tight tabular-nums">
                 {new Intl.NumberFormat(
                   locale,
                   key.includes('volume')

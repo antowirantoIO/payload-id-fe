@@ -1,44 +1,69 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+import { useState } from 'react'
 import { Link, useRouter } from '@/i18n/navigation'
-import { useMerchantDemo } from '../hooks/use-merchant-demo'
+import { toMerchant, useMerchant, useMerchants, useSaveMerchant, useTenants } from '../hooks/use-merchants'
 import { emptyMerchant } from '../lib/model'
 import { MerchantForm } from './merchant-form'
+import { MerchantNotFound } from './merchant-not-found'
 
 export function MerchantEditorPage({ merchantId }: { merchantId?: string }) {
-  const { rows, save } = useMerchantDemo()
+  const t = useTranslations('merchants')
   const router = useRouter()
-  const merchant = merchantId ? rows.find((row) => row.id === merchantId) : emptyMerchant()
-  if (!merchant)
-    return (
-      <div className="space-y-4">
-        <h1 className="text-2xl font-semibold">Merchant not found</h1>
-        <p className="text-sm text-muted-foreground">The requested merchant could not be found.</p>
-        <Link href="/merchants" className="text-primary underline">
-          Back to merchants
-        </Link>
-      </div>
-    )
+  const merchantsQuery = useMerchants()
+  const merchantQuery = useMerchant(merchantId ?? '')
+  const tenantsQuery = useTenants()
+  const save = useSaveMerchant()
+  const [error, setError] = useState('')
+
+  const rows = merchantsQuery.data ?? []
+  const merchant = merchantId
+    ? merchantQuery.data
+      ? toMerchant(merchantQuery.data)
+      : undefined
+    : emptyMerchant()
+
+  if (merchantId && merchantQuery.isPending) {
+    return <p className="text-sm text-muted-foreground">{t('loading')}</p>
+  }
+  if (!merchant) return <MerchantNotFound />
+
   const back = merchantId ? `/merchants/${merchantId}` : '/merchants'
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <Link href={back} className="text-sm text-primary underline">
-        {merchantId ? 'Back to merchant' : 'Back to merchants'}
+        {merchantId ? t('backToMerchant') : t('backToMerchants')}
       </Link>
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">
-          {merchantId ? 'Edit merchant' : 'Add merchant'}
+          {merchantId ? t('editMerchant') : t('addMerchant')}
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Enter the business profile, settlement preferences and integration settings.
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">{t('editorDescription')}</p>
       </header>
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
       <MerchantForm
         key={merchantId || 'create'}
         initial={merchant}
         existing={rows}
+        tenants={(tenantsQuery.data ?? []).map((tenant) => ({ id: tenant.id, name: tenant.name }))}
+        isSaving={save.isPending}
         onClose={() => router.push(back)}
-        onSave={(draft) => router.push(`/merchants/${save(draft)}`)}
+        onSave={(draft) => {
+          setError('')
+          save.mutate(
+            { merchant: draft, id: merchantId },
+            {
+              onSuccess: (saved) => router.push(`/merchants/${saved.id}`),
+              onError: (cause) =>
+                setError(cause instanceof Error ? cause.message : t('loadErrorDescription')),
+            },
+          )
+        }}
       />
     </div>
   )

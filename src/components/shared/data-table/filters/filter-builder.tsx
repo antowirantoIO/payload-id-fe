@@ -2,6 +2,7 @@
 
 import { Popover as PopoverPrimitive } from '@base-ui/react/popover'
 import { FilterIcon, PlusIcon, SlidersHorizontalIcon } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -28,12 +29,8 @@ function newConditionId() {
   return `c${conditionIdCounter}`
 }
 
-export function FilterBuilder({
-  value,
-  onChange,
-  fieldsConfig,
-  triggerLabel = 'Filters',
-}: FilterBuilderProps) {
+export function FilterBuilder({ value, onChange, fieldsConfig, triggerLabel }: FilterBuilderProps) {
+  const t = useTranslations('table')
   const count = value.conditions.length
   const hasFilters = count > 0
 
@@ -82,7 +79,7 @@ export function FilterBuilder({
             )}
           >
             <FilterIcon className="size-3.5" />
-            {triggerLabel}
+            {triggerLabel ?? t('filters')}
             {hasFilters && (
               <span className="bg-primary text-primary-foreground ml-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-medium tabular-nums">
                 {count}
@@ -95,7 +92,7 @@ export function FilterBuilder({
         <PopoverPrimitive.Positioner side="bottom" align="start" sideOffset={8} className="z-40">
           <PopoverPrimitive.Popup
             className={cn(
-              'bg-popover text-popover-foreground border-border/60 relative z-40 w-[720px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border shadow-2xl outline-none',
+              'bg-popover text-popover-foreground border-border/60 relative z-40 w-[720px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-md border shadow-2xl outline-none',
               'data-open:animate-in data-open:fade-in-0 data-open:zoom-in-[0.98] data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
             )}
           >
@@ -107,11 +104,9 @@ export function FilterBuilder({
                 </div>
                 <div className="space-y-0.5">
                   <h4 className="text-sm font-semibold leading-none tracking-tight">
-                    Advanced filters
+                    {t('moreFiltersLabel')}
                   </h4>
-                  <p className="text-muted-foreground text-xs">
-                    Combine conditions with AND/OR. Empty values are ignored.
-                  </p>
+                  <p className="text-muted-foreground text-xs">{t('filterDescription')}</p>
                 </div>
               </div>
               {hasFilters && (
@@ -120,7 +115,7 @@ export function FilterBuilder({
                   onClick={clearAll}
                   className="text-muted-foreground hover:text-destructive shrink-0 text-xs font-medium underline-offset-2 transition-colors hover:underline"
                 >
-                  Clear all
+                  {t('clearAll')}
                 </button>
               )}
             </div>
@@ -133,29 +128,27 @@ export function FilterBuilder({
                     <FilterIcon className="size-4" />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-foreground text-sm font-medium">No conditions yet</p>
-                    <p className="text-muted-foreground text-xs">
-                      Add a condition below to start filtering.
-                    </p>
+                    <p className="text-foreground text-sm font-medium">{t('noConditions')}</p>
+                    <p className="text-muted-foreground text-xs">{t('addConditionHint')}</p>
                   </div>
                 </div>
               ) : (
                 <div className="px-5 py-4">
                   <div className="mb-3 flex items-center gap-2 text-xs">
-                    <span className="text-muted-foreground">Match</span>
+                    <span className="text-muted-foreground">{t('match')}</span>
                     <Select
-                      value={value.combinator}
+                      value={t(value.combinator).toLowerCase()}
                       onValueChange={(v) => onChange({ ...value, combinator: v as 'and' | 'or' })}
                     >
                       <SelectTrigger size="sm" className="h-7 w-[80px] text-xs font-medium">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="and">all</SelectItem>
-                        <SelectItem value="or">any</SelectItem>
+                        <SelectItem value="and">{t('matchAll')}</SelectItem>
+                        <SelectItem value="or">{t('matchAny')}</SelectItem>
                       </SelectContent>
                     </Select>
-                    <span className="text-muted-foreground">of the following:</span>
+                    <span className="text-muted-foreground">{t('following')}</span>
                   </div>
 
                   <div className="space-y-2">
@@ -166,7 +159,7 @@ export function FilterBuilder({
                       >
                         {idx > 0 && (
                           <div className="bg-popover border-border/60 text-muted-foreground absolute -top-[11px] left-3 z-10 flex h-5 items-center rounded-full border px-1.5 text-xs font-medium">
-                            {value.combinator}
+                            {t(value.combinator).toLowerCase()}
                           </div>
                         )}
                         <FilterConditionRow
@@ -191,12 +184,12 @@ export function FilterBuilder({
                 className="text-foreground h-8 gap-1.5 text-xs font-medium"
               >
                 <PlusIcon className="size-3.5" />
-                Add condition
+                {t('addCondition')}
               </Button>
               <PopoverPrimitive.Close
                 render={<Button size="sm" className="h-8 px-4 text-xs font-medium" />}
               >
-                Done
+                {t('done')}
               </PopoverPrimitive.Close>
             </div>
           </PopoverPrimitive.Popup>

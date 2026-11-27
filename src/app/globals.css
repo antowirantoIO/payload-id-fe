@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-jakarta-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-geist-sans);
   --text-xs: 0.75rem;
@@ -54,9 +54,9 @@
   --color-highlight-foreground: var(--highlight-foreground);
   --color-glow: var(--glow);
 
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
+  --radius-sm: 0.625rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
   --radius-xl: calc(var(--radius) * 1.4);
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
@@ -70,125 +70,97 @@
   --shadow-2xl: 0 16px 32px -8px oklch(0 0 0 / 0.12), 0 48px 96px -16px oklch(0 0 0 / 0.1);
   --shadow-glow: 0 0 0 1px var(--ring), 0 0 24px -4px var(--ring);
   --shadow-glow-primary:
-    0 0 0 1px oklch(0.596 0.145 163.225 / 0.2), 0 8px 32px -8px oklch(0.596 0.145 163.225 / 0.25);
+    0 0 0 1px color-mix(in srgb, var(--primary) 20%, transparent),
+    0 8px 32px -8px color-mix(in srgb, var(--primary) 15%, transparent);
   --shadow-glow-highlight:
     0 0 0 1px oklch(0.75 0.15 85 / 0.2), 0 8px 32px -8px oklch(0.75 0.15 85 / 0.2);
   --shadow-card-hover: 0 4px 12px -2px oklch(0 0 0 / 0.06), 0 16px 32px -8px oklch(0 0 0 / 0.08);
 }
 
+/* Soft Sky: cloud surfaces, denim actions, and independent semantic statuses. */
 :root {
-  /* Surfaces — crisp white with cool-neutral subtones */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0.005 285);
-  --surface: oklch(0.985 0.002 285);
-  --surface-foreground: oklch(0.145 0.005 285);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0.005 285);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0.005 285);
-
-  /* Primary — Emerald 600 (Linear-style accent) */
-  --primary: oklch(0.596 0.145 163.225);
-  --primary-foreground: oklch(0.985 0 0);
-
-  /* Highlight — warm amber for badges, CTAs, ribbons */
-  --highlight: oklch(0.75 0.15 85);
-  --highlight-foreground: oklch(0.25 0.02 85);
-
-  /* Glow — soft teal-cyan for ambient effects */
-  --glow: oklch(0.78 0.13 200);
-
-  /* Secondary / Muted — soft cool grays */
-  --secondary: oklch(0.97 0.003 285);
-  --secondary-foreground: oklch(0.205 0.005 285);
-  --muted: oklch(0.97 0.003 285);
-  --muted-foreground: oklch(0.508 0.008 285);
-  --accent: oklch(0.96 0.012 163);
-  --accent-foreground: oklch(0.35 0.09 163);
-
-  /* Status colors */
-  --destructive: oklch(0.577 0.245 27.325);
-  --success: oklch(0.596 0.145 163.225);
-  --warning: oklch(0.745 0.172 75.6);
-  --info: oklch(0.628 0.178 254);
-
-  /* Borders & inputs — barely-there contrast */
-  --border: oklch(0.92 0.004 285);
-  --input: oklch(0.92 0.004 285);
-  --ring: oklch(0.596 0.145 163.225);
-
-  /* Charts — emerald-led palette */
+  --background: #f5f7fa;
+  --foreground: #283341;
+  --surface: #edf1f7;
+  --surface-foreground: #283341;
+  --card: #ffffff;
+  --card-foreground: #283341;
+  --popover: #ffffff;
+  --popover-foreground: #283341;
+  --primary: #355d91;
+  --primary-foreground: #ffffff;
+  --secondary: #edf2f9;
+  --secondary-foreground: #405673;
+  --muted: #eef2f7;
+  --muted-foreground: #5f6c7d;
+  --accent: #e7effb;
+  --accent-foreground: #355d91;
+  --destructive: #b91c1c;
+  --success: #047857;
+  --warning: #92400e;
+  --info: #1d4ed8;
+  --border: #e0e6ee;
+  --input: #7d8ca0;
+  --ring: #355d91;
+  --highlight: #92400e;
+  --highlight-foreground: #ffffff;
+  --glow: #355d91;
   --chart-1: oklch(0.596 0.145 163.225);
   --chart-2: oklch(0.628 0.178 254);
   --chart-3: oklch(0.745 0.172 75.6);
   --chart-4: oklch(0.65 0.2 320);
   --chart-5: oklch(0.577 0.245 27.325);
-
-  --radius: 0.625rem;
-
-  /* Sidebar — slightly off-white panel */
-  --sidebar: oklch(0.985 0.002 285);
-  --sidebar-foreground: oklch(0.145 0.005 285);
-  --sidebar-primary: oklch(0.596 0.145 163.225);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.96 0.003 285);
-  --sidebar-accent-foreground: oklch(0.205 0.005 285);
-  --sidebar-border: oklch(0.92 0.004 285);
-  --sidebar-ring: oklch(0.596 0.145 163.225);
+  --radius: 1rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #46566c;
+  --sidebar-primary: #355d91;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e7effb;
+  --sidebar-accent-foreground: #355d91;
+  --sidebar-border: #e0e6ee;
+  --sidebar-ring: #355d91;
 }
 
 .dark {
-  /* Surfaces — rich blacks with cool tint (Linear-style) */
-  --background: oklch(0.135 0.006 285);
-  --foreground: oklch(0.985 0 0);
-  --surface: oklch(0.165 0.006 285);
-  --surface-foreground: oklch(0.985 0 0);
-  --card: oklch(0.17 0.006 285);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.185 0.006 285);
-  --popover-foreground: oklch(0.985 0 0);
-
-  /* Primary — Emerald 400 (brighter for dark surfaces) */
-  --primary: oklch(0.765 0.177 163.223);
-  --primary-foreground: oklch(0.16 0.04 163);
-
-  /* Highlight — warm amber brighter for dark */
-  --highlight: oklch(0.82 0.15 85);
-  --highlight-foreground: oklch(0.2 0.02 85);
-
-  /* Glow — brighter teal-cyan */
-  --glow: oklch(0.82 0.12 200);
-
-  --secondary: oklch(0.225 0.006 285);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.225 0.006 285);
-  --muted-foreground: oklch(0.66 0.008 285);
-  --accent: oklch(0.27 0.04 163);
-  --accent-foreground: oklch(0.92 0.08 163);
-
-  --destructive: oklch(0.704 0.191 22.216);
-  --success: oklch(0.765 0.177 163.223);
-  --warning: oklch(0.82 0.165 84);
-  --info: oklch(0.7 0.165 254);
-
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.765 0.177 163.223);
-
+  --background: #18202c;
+  --foreground: #edf2fa;
+  --surface: #273348;
+  --surface-foreground: #edf2fa;
+  --card: #202b3b;
+  --card-foreground: #edf2fa;
+  --popover: #273348;
+  --popover-foreground: #edf2fa;
+  --primary: #a9c9f7;
+  --primary-foreground: #1b304e;
+  --secondary: #2a384d;
+  --secondary-foreground: #d8e4f6;
+  --muted: #2a384d;
+  --muted-foreground: #afbdd1;
+  --accent: #2b4263;
+  --accent-foreground: #c7dcfb;
+  --destructive: #fca5a5;
+  --success: #6ee7b7;
+  --warning: #fcd34d;
+  --info: #93c5fd;
+  --border: #36465c;
+  --input: #8190a5;
+  --ring: #a9c9f7;
+  --highlight: #fcd34d;
+  --highlight-foreground: #1c1917;
+  --glow: #a9c9f7;
   --chart-1: oklch(0.765 0.177 163.223);
   --chart-2: oklch(0.7 0.165 254);
   --chart-3: oklch(0.82 0.165 84);
   --chart-4: oklch(0.72 0.18 320);
   --chart-5: oklch(0.704 0.191 22.216);
-
-  --sidebar: oklch(0.155 0.006 285);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.765 0.177 163.223);
-  --sidebar-primary-foreground: oklch(0.16 0.04 163);
-  --sidebar-accent: oklch(0.22 0.006 285);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 6%);
-  --sidebar-ring: oklch(0.765 0.177 163.223);
+  --sidebar: #202b3b;
+  --sidebar-foreground: #d8e4f6;
+  --sidebar-primary: #a9c9f7;
+  --sidebar-primary-foreground: #1b304e;
+  --sidebar-accent: #2b4263;
+  --sidebar-accent-foreground: #c7dcfb;
+  --sidebar-border: #36465c;
+  --sidebar-ring: #a9c9f7;
 }
 
 @layer base {
@@ -207,10 +179,10 @@
   h3,
   h4 {
     @apply tracking-tight;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.01em;
   }
   h1 {
-    letter-spacing: -0.025em;
+    letter-spacing: -0.02em;
   }
 }
 
@@ -240,7 +212,7 @@
     border-color: color-mix(in oklch, var(--border) 100%, transparent);
   }
 
-  /* Focus ring with emerald glow */
+  /* Visible theme-aware focus ring */
   .focus-ring {
     @apply outline-none ring-2 ring-ring/40 ring-offset-2 ring-offset-background;
   }
@@ -417,5 +389,20 @@
   }
   .text-info {
     color: var(--info);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: accessibility preference must override component animation utilities. */
+    animation-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: stop repeated animations when reduced motion is requested. */
+    animation-iteration-count: 1 !important;
+    /* biome-ignore lint/complexity/noImportantStyles: override transition duration utilities for reduced motion. */
+    transition-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: prevent utility-driven smooth scrolling. */
+    scroll-behavior: auto !important;
   }
 }

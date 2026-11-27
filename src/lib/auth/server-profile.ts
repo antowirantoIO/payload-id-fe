@@ -1,21 +1,13 @@
 import 'server-only'
-import { headers } from 'next/headers'
-import { NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
+import { cache } from 'react'
 import { profileSchema } from '@/lib/api/contracts'
 import { iamRequest } from '@/lib/api/server'
+import { getRequestBackendSession } from './server-session'
 
-export async function getServerProfile() {
-  const request = new NextRequest(process.env.AUTH_URL ?? 'http://localhost:3000', {
-    headers: await headers(),
-  })
-  const token = await getToken({
-    req: request,
-    secret: process.env.AUTH_SECRET,
-    secureCookie: request.nextUrl.protocol === 'https:',
-  })
-  if (!token?.backendToken || !token.backendExpires || token.backendExpires <= Date.now())
-    return null
+/** Request-scoped deduplication only: never cache profiles across users or requests. */
+export const getServerProfile = cache(async () => {
+  const token = await getRequestBackendSession()
+  if (!token) return null
   try {
     const response = await iamRequest('/auth/me', {
       headers: { Authorization: `Bearer ${token.backendToken}` },
@@ -25,4 +17,4 @@ export async function getServerProfile() {
   } catch {
     return null
   }
-}
+})

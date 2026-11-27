@@ -1,18 +1,13 @@
 import type { NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
 import { alertsSchema, summarySchema } from '@/features/account'
 import { profileSchema } from '@/lib/api/contracts'
 import { iamRequest, serviceRequest } from '@/lib/api/server'
+import { getBackendSession } from '@/lib/auth/server-session'
 import { workspaceFor } from '@/lib/auth/workspace'
 
 export async function GET(request: NextRequest) {
-  const token = await getToken({
-    req: request,
-    secret: process.env.AUTH_SECRET,
-    secureCookie: new URL(process.env.AUTH_URL ?? request.url).protocol === 'https:',
-  })
-  if (!token?.backendToken || !token.backendExpires || token.backendExpires <= Date.now())
-    return Response.json({}, { status: 401 })
+  const token = await getBackendSession(request)
+  if (!token) return Response.json({}, { status: 401 })
   try {
     const headers = { Authorization: `Bearer ${token.backendToken}` }
     const me = await iamRequest('/auth/me', { headers })

@@ -20,18 +20,7 @@ interface UserMenuProps {
   name?: string | null
 }
 
-function getInitials(name: string | null | undefined, email: string) {
-  if (name) {
-    return name
-      .split(' ')
-      .map((s) => s[0])
-      .filter(Boolean)
-      .slice(0, 2)
-      .join('')
-      .toUpperCase()
-  }
-  return email[0]?.toUpperCase() ?? '?'
-}
+import { accountInitials } from './account-initials'
 
 export function UserMenu({ email, name }: UserMenuProps) {
   const t = useTranslations('common')
@@ -47,7 +36,7 @@ export function UserMenu({ email, name }: UserMenuProps) {
       >
         <Avatar className="size-8 ring-2 ring-border/50 ring-offset-1 ring-offset-background">
           <AvatarFallback className="bg-primary/10 text-[11px] font-medium text-primary">
-            {getInitials(name, email)}
+            {accountInitials(name, email)}
           </AvatarFallback>
         </Avatar>
         <ChevronDownIcon className="text-muted-foreground hidden size-3.5 sm:block" />
@@ -59,7 +48,7 @@ export function UserMenu({ email, name }: UserMenuProps) {
             <div className="flex items-center gap-2.5">
               <Avatar className="size-9 shrink-0">
                 <AvatarFallback className="bg-primary/10 text-xs font-medium text-primary">
-                  {getInitials(name, email)}
+                  {accountInitials(name, email)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex min-w-0 flex-col">

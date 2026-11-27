@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { findModule, serviceNavigation } from '@/lib/workspace/navigation'
+import { productPaths } from '@/lib/workspace/product-paths'
 import { moduleMessages, navigationMessages } from '@/messages/navigation'
-import { findModule, serviceNavigation } from './navigation'
-import { productPaths } from './product-paths'
 
 describe('service navigation', () => {
   it('retains every backend module once in task-oriented navigation', () => {
@@ -31,7 +31,7 @@ describe('service navigation', () => {
     expect(findModule('missing', 'missing')).toBeUndefined()
   })
   it('has translated labels and placeholder copy for every module', () => {
-    for (const locale of ['en', 'id', 'pt-BR'] as const) {
+    for (const locale of ['en', 'id'] as const) {
       expect(Object.keys(navigationMessages[locale]).sort()).toEqual(
         Object.keys(navigationMessages.en).sort(),
       )

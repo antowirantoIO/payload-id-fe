@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { MultiSearch, PeriodFilter } from './workspace-controls'
+import { MultiSearch, PeriodFilter, searchTerms } from './workspace-controls'
 
 export function WorkspaceToolbar<TData>({
   table,
@@ -42,6 +42,7 @@ export function WorkspaceToolbar<TData>({
   multiSearchPlaceholder,
   multiSearchApplyLabel,
   multiSearchDescription,
+  sortLabel,
 }: {
   table: Table<TData>
   search: string
@@ -62,16 +63,10 @@ export function WorkspaceToolbar<TData>({
   multiSearchPlaceholder?: string
   multiSearchApplyLabel?: string
   multiSearchDescription?: string
+  sortLabel?: string
 }) {
-  const t = useTranslations('transactions')
-  const terms = [
-    ...new Set(
-      search
-        .split(/[,;\n]+/)
-        .map((value) => value.trim())
-        .filter(Boolean),
-    ),
-  ]
+  const t = useTranslations('table')
+  const terms = searchTerms(search)
   return (
     <div className="space-y-2.5">
       <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
@@ -95,7 +90,7 @@ export function WorkspaceToolbar<TData>({
                   onSearch([search, text.replace(/[\n;]+/g, ', ')].filter(Boolean).join(', '))
                 }
               }}
-              className="h-10 pl-8 text-sm"
+              className="h-9 pl-8 text-sm"
             />
           </div>
           <MultiSearch
@@ -194,7 +189,7 @@ export function WorkspaceToolbar<TData>({
               if (value) onSort(value)
             }}
           >
-            <SelectTrigger aria-label={t('sort')} className="h-9 w-44 text-sm">
+            <SelectTrigger aria-label={sortLabel ?? t('sort')} className="h-9 w-44 text-sm">
               <SelectValue>
                 {sortOptions.find((option) => option.value === sort)?.label ?? t('customSort')}
               </SelectValue>

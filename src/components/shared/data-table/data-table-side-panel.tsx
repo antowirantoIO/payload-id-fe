@@ -62,9 +62,7 @@ export function DataTableSidePanel({
 
         <SheetBody>{children}</SheetBody>
 
-        {footer && (
-          <div className="bg-surface/50 border-border/60 border-t px-6 py-4">{footer}</div>
-        )}
+        {footer && <div className="bg-card border-border border-t px-6 py-4">{footer}</div>}
       </SheetContent>
     </Sheet>
   )

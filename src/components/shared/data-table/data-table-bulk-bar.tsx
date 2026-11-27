@@ -2,6 +2,7 @@
 
 import type { Table } from '@tanstack/react-table'
 import { CheckCircle2Icon, Loader2Icon, XIcon } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -20,6 +21,8 @@ interface DataTableBulkBarProps<TData> {
   }>
   /** Function untuk extract id dari TData. Default: row.id (TanStack-managed). */
   getRowId?: (row: TData) => string
+  selectionLabel?: string
+  variant?: 'default' | 'soft'
 }
 
 /**
@@ -30,7 +33,10 @@ export function DataTableBulkBar<TData>({
   table,
   actions,
   getRowId = (row) => (row as { id?: string }).id ?? '',
+  selectionLabel,
+  variant = 'default',
 }: DataTableBulkBarProps<TData>) {
+  const t = useTranslations('table')
   const selected = table.getSelectedRowModel().rows
   const count = selected.length
 
@@ -41,14 +47,18 @@ export function DataTableBulkBar<TData>({
   return (
     <div
       className={cn(
-        'animate-in fade-in slide-in-from-top-2 duration-200',
-        'bg-foreground text-background flex flex-wrap items-center gap-2 rounded-lg px-3 py-2 ring-1 ring-foreground/10',
+        'animate-in fade-in slide-in-from-top-2 duration-200 flex flex-wrap items-center gap-2 rounded-lg px-3 py-2 ring-1',
+        variant === 'soft'
+          ? 'border border-border bg-card text-foreground shadow-sm ring-border/40'
+          : 'bg-foreground text-background ring-foreground/10',
       )}
     >
       <div className="flex items-center gap-2 px-1">
-        <CheckCircle2Icon className="text-primary size-4" />
+        <CheckCircle2Icon
+          className={cn('size-4', variant === 'soft' ? 'text-primary' : 'text-primary')}
+        />
         <span className="text-xs font-semibold tabular-nums">
-          {count} {count === 1 ? 'row' : 'rows'} selected
+          {selectionLabel ?? t('selectedRows', { count })}
         </span>
       </div>
 
@@ -63,10 +73,15 @@ export function DataTableBulkBar<TData>({
               variant="ghost"
               size="sm"
               className={cn(
-                'text-background hover:text-background h-7 gap-1.5 px-2.5 text-xs font-medium transition-colors',
+                'h-8 gap-1.5 px-2.5 text-xs font-medium transition-colors',
+                variant === 'soft'
+                  ? 'text-foreground hover:bg-accent'
+                  : 'text-background hover:text-background',
                 action.destructive
-                  ? 'hover:bg-destructive/40 hover:text-destructive-foreground'
-                  : 'hover:bg-background/15',
+                  ? 'hover:bg-destructive/20 hover:text-destructive'
+                  : variant === 'soft'
+                    ? 'hover:bg-accent'
+                    : 'hover:bg-background/15',
               )}
               onClick={() => action.onSelect(ids)}
               disabled={action.isPending}
@@ -85,12 +100,17 @@ export function DataTableBulkBar<TData>({
       <Button
         variant="ghost"
         size="sm"
-        className="text-background/70 hover:bg-background/15 hover:text-background ml-auto h-7 gap-1 px-2 text-xs font-medium"
+        className={cn(
+          'ml-auto h-8 gap-1 px-2 text-xs font-medium',
+          variant === 'soft'
+            ? 'text-muted-foreground hover:bg-accent hover:text-foreground'
+            : 'text-background/70 hover:bg-background/15 hover:text-background',
+        )}
         onClick={() => table.resetRowSelection()}
-        aria-label="Clear selection"
+        aria-label={t('clearSelection')}
       >
         <XIcon className="size-3.5" />
-        Clear
+        {t('clear')}
       </Button>
     </div>
   )

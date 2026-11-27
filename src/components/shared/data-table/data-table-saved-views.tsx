@@ -1,6 +1,7 @@
 'use client'
 
 import { CheckIcon, MoreHorizontalIcon, PinIcon, PlusIcon, Trash2Icon } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -47,8 +48,9 @@ export function DataTableSavedViews({
   onDelete,
   isDirty,
   onSaveCurrent,
-  defaultViewLabel = 'All',
+  defaultViewLabel,
 }: DataTableSavedViewsProps) {
+  const t = useTranslations('table')
   if (isLoading) {
     return (
       <div className="flex h-10 items-center gap-1 border-b border-border/60 px-1">
@@ -63,7 +65,7 @@ export function DataTableSavedViews({
     <div className="border-border/60 relative flex items-center gap-1 border-b px-0.5">
       {/* All tab */}
       <Tab active={activeViewId === null} onClick={() => onSelect(null)}>
-        {defaultViewLabel}
+        {defaultViewLabel ?? t('all')}
       </Tab>
 
       {/* Saved views */}
@@ -89,7 +91,7 @@ export function DataTableSavedViews({
         className="text-muted-foreground hover:text-foreground ml-0.5 h-8 gap-1 px-2 text-xs"
       >
         <PlusIcon className="size-3.5" />
-        New view
+        {t('newView')}
       </Button>
 
       {/* Save changes (when dirty) */}
@@ -100,7 +102,7 @@ export function DataTableSavedViews({
           onClick={onSaveCurrent}
           className="ml-auto h-8 gap-1 px-2.5 text-xs"
         >
-          Save changes
+          {t('saveChanges')}
         </Button>
       )}
     </div>
@@ -127,7 +129,7 @@ function Tab({
           ? 'text-foreground'
           : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
         active &&
-          "after:absolute after:-bottom-px after:left-2 after:right-2 after:h-0.5 after:rounded-full after:bg-primary after:content-[''] after:shadow-[0_1px_8px_-1px_var(--ring)]",
+          "after:absolute after:-bottom-px after:left-2 after:right-2 after:h-0.5 after:rounded-full after:bg-primary after:content-['']",
       )}
     >
       {children}
@@ -148,6 +150,7 @@ function ViewTab({
   onSetDefault: () => void
   onDelete: () => void
 }) {
+  const t = useTranslations('table')
   return (
     <div
       data-active={active}
@@ -155,7 +158,7 @@ function ViewTab({
         'group/tab relative inline-flex h-9 items-center rounded-md transition-[color,background-color] duration-150',
         active ? 'text-foreground' : 'text-muted-foreground hover:bg-muted/50',
         active &&
-          "after:absolute after:-bottom-px after:left-2 after:right-2 after:h-0.5 after:rounded-full after:bg-primary after:content-[''] after:shadow-[0_1px_8px_-1px_var(--ring)]",
+          "after:absolute after:-bottom-px after:left-2 after:right-2 after:h-0.5 after:rounded-full after:bg-primary after:content-['']",
       )}
     >
       <button
@@ -184,7 +187,7 @@ function ViewTab({
                   ? 'opacity-70 hover:opacity-100'
                   : 'opacity-0 group-hover/tab:opacity-100 focus-visible:opacity-100',
               )}
-              aria-label={`Manage ${view.name}`}
+              aria-label={t('manageView', { name: view.name })}
             >
               <MoreHorizontalIcon className="size-3.5" />
             </button>
@@ -193,7 +196,7 @@ function ViewTab({
         <DropdownMenuContent align="end" className="w-44">
           <DropdownMenuItem onSelect={onSetDefault} disabled={view.is_default}>
             <CheckIcon className="size-3.5" />
-            Set as default
+            {t('setDefault')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -202,7 +205,7 @@ function ViewTab({
             className="text-destructive data-[highlighted]:text-destructive"
           >
             <Trash2Icon className="size-3.5" />
-            Delete
+            {t('delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

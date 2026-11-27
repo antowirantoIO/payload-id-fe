@@ -1,8 +1,8 @@
 import { expect, it } from 'vitest'
 import type { WorkspaceProfile } from '@/lib/auth/workspace'
+import { canViewFeature, featureNavigation, features } from '@/lib/workspace/features'
+import { serviceNavigation } from '@/lib/workspace/navigation'
 import { featureMessages } from '@/messages/features'
-import { canViewFeature, featureNavigation, features } from './features'
-import { serviceNavigation } from './navigation'
 
 const profile: WorkspaceProfile = {
   id: '1',
@@ -64,7 +64,7 @@ it('separates merchant and reseller product boundaries from platform permissions
     ),
   ).toBe(false)
 })
-it('translates every feature in all three locales', () => {
+it('translates every feature in all supported locales', () => {
   for (const messages of Object.values(featureMessages))
     for (const feature of features) expect(messages).toHaveProperty(feature.label)
 })

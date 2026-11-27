@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -34,6 +36,7 @@ export function SaveViewDialog({
   isPending,
   defaultName = '',
 }: SaveViewDialogProps) {
+  const t = useTranslations('table')
   const [name, setName] = useState(defaultName)
   const [isDefault, setIsDefault] = useState(false)
 
@@ -57,25 +60,23 @@ export function SaveViewDialog({
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Save view</DialogTitle>
-            <DialogDescription>
-              Filter, sort, kolom, dan density saat ini akan disimpan sebagai view.
-            </DialogDescription>
+            <DialogTitle>{t('saveView')}</DialogTitle>
+            <DialogDescription>{t('saveViewDescription')}</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-1.5">
-              <Label htmlFor="view-name">Name</Label>
+              <Label htmlFor="view-name">{t('name')}</Label>
               <Input
                 id="view-name"
-                placeholder="My active leads…"
+                placeholder={t('viewPlaceholder')}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoFocus
                 maxLength={60}
                 required
               />
-              <p className="text-muted-foreground text-xs">Max 60 karakter.</p>
+              <p className="text-muted-foreground text-xs">{t('nameLimit')}</p>
             </div>
 
             <div className="flex items-center gap-2 text-sm">
@@ -85,7 +86,7 @@ export function SaveViewDialog({
                 onCheckedChange={(v) => setIsDefault(Boolean(v))}
               />
               <label htmlFor="save-view-is-default" className="cursor-pointer">
-                Set as default view
+                {t('defaultViewOption')}
               </label>
             </div>
           </div>
@@ -97,10 +98,10 @@ export function SaveViewDialog({
               onClick={() => onOpenChange(false)}
               disabled={isPending}
             >
-              Cancel
+              {t('cancel')}
             </Button>
             <Button type="submit" disabled={isPending || !name.trim()}>
-              {isPending ? 'Saving…' : 'Save view'}
+              {isPending ? t('saving') : t('saveView')}
             </Button>
           </DialogFooter>
         </form>

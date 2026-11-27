@@ -380,6 +380,11 @@
       "countryPlaceholder": "Select country",
       "phone": "Phone (optional)",
       "terms": "I agree to the terms & conditions and privacy policy."
+    },
+    "access": {
+      "secureAccess": "Secure account access",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
     }
   },
   "buyer": {

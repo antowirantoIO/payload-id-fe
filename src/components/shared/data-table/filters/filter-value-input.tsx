@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 import { useId } from 'react'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
@@ -18,6 +20,7 @@ interface FilterValueInputProps {
  * value (is_known, is_true, dll.) → return null (caller skip render).
  */
 export function FilterValueInput({ field, operator, value, onChange }: FilterValueInputProps) {
+  const t = useTranslations('table')
   const id = useId()
 
   if (!operatorNeedsValue(operator)) return null
@@ -30,20 +33,26 @@ export function FilterValueInput({ field, operator, value, onChange }: FilterVal
       <div className="flex flex-wrap items-center gap-2">
         <Input
           type={isDate ? (field.includeTime ? 'datetime-local' : 'date') : 'number'}
-          aria-label={`${field.label} start${field.includeTime ? ' (UTC)' : ''}`}
+          aria-label={t('rangeStart', {
+            field: field.label,
+            timezone: field.includeTime ? ' (UTC)' : '',
+          })}
           value={String(v[0] ?? '')}
           onChange={(e) => onChange([e.target.value, v[1] ?? ''])}
           className={field.includeTime ? 'h-9 w-52 text-xs' : 'h-9 w-28 text-xs'}
-          placeholder="Start"
+          placeholder={t('start')}
         />
         <span className="text-muted-foreground text-xs">—</span>
         <Input
           type={isDate ? (field.includeTime ? 'datetime-local' : 'date') : 'number'}
-          aria-label={`${field.label} end${field.includeTime ? ' (UTC)' : ''}`}
+          aria-label={t('rangeEnd', {
+            field: field.label,
+            timezone: field.includeTime ? ' (UTC)' : '',
+          })}
           value={String(v[1] ?? '')}
           onChange={(e) => onChange([v[0] ?? '', e.target.value])}
           className={field.includeTime ? 'h-9 w-52 text-xs' : 'h-9 w-28 text-xs'}
-          placeholder="End"
+          placeholder={t('end')}
         />
       </div>
     )
@@ -94,7 +103,7 @@ export function FilterValueInput({ field, operator, value, onChange }: FilterVal
           )
         }
         className="h-8 w-48 text-xs"
-        placeholder="value1, value2"
+        placeholder={t('valuesPlaceholder')}
       />
     )
   }
@@ -117,7 +126,7 @@ export function FilterValueInput({ field, operator, value, onChange }: FilterVal
           onChange={(e) => onChange(Number(e.target.value))}
           className="h-8 w-20 text-xs"
         />
-        <span className="text-muted-foreground text-xs">days</span>
+        <span className="text-muted-foreground text-xs">{t('days')}</span>
       </div>
     )
   }
@@ -153,7 +162,7 @@ export function FilterValueInput({ field, operator, value, onChange }: FilterVal
       value={String(value ?? '')}
       onChange={(e) => onChange(e.target.value)}
       className="h-8 w-48 text-xs"
-      placeholder="Value"
+      placeholder={t('value')}
     />
   )
 }

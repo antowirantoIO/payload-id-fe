@@ -1,9 +1,9 @@
 'use client'
 
 import { XIcon } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { FieldTypeIcon, getFieldLabel } from './icons'
 import type { FieldConfig, FilterCondition, FilterGroup } from './lib/types'
-import { OPERATOR_LABELS } from './lib/types'
 
 interface FilterChipsProps {
   value: FilterGroup
@@ -33,12 +33,16 @@ function lookupEnumLabel(field: FieldConfig | undefined, value: unknown): string
  * - last_n_days → "N days"
  * - array (in/not_in/has_any/has_all) → max 2 labels + "+N more"
  */
-function formatValue(condition: FilterCondition, field: FieldConfig | undefined): string {
+function formatValue(
+  condition: FilterCondition,
+  field: FieldConfig | undefined,
+  t: ReturnType<typeof useTranslations>,
+): string {
   const { value, operator } = condition
   if (value === null || value === undefined || value === '') return ''
 
   if (operator === 'last_n_days') {
-    return `${value} ${Number(value) === 1 ? 'day' : 'days'}`
+    return t('durationDays', { count: Number(value) })
   }
 
   if (operator === 'between' && Array.isArray(value) && value.length === 2) {
@@ -50,7 +54,7 @@ function formatValue(condition: FilterCondition, field: FieldConfig | undefined)
   if (Array.isArray(value)) {
     const labels = value.map((v) => lookupEnumLabel(field, v))
     if (labels.length <= 2) return labels.join(', ')
-    return `${labels.slice(0, 2).join(', ')} +${labels.length - 2} more`
+    return `${labels.slice(0, 2).join(', ')} ${t('moreValues', { count: labels.length - 2 })}`
   }
 
   if (field?.type === 'date') return formatDate(value)
@@ -59,15 +63,16 @@ function formatValue(condition: FilterCondition, field: FieldConfig | undefined)
 }
 
 export function FilterChips({ value, onChange, fieldsConfig }: FilterChipsProps) {
+  const t = useTranslations('table')
   if (value.conditions.length === 0) return null
 
-  const combinatorLabel = value.combinator === 'and' ? 'AND' : 'OR'
+  const combinatorLabel = t(value.combinator)
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       {value.conditions.map((c, idx) => {
         const cfg = fieldsConfig.find((f) => f.id === c.field)
-        const valueText = formatValue(c, cfg)
+        const valueText = formatValue(c, cfg, t)
         return (
           <div key={c.id} className="flex items-center gap-1.5">
             {idx > 0 && (
@@ -75,14 +80,14 @@ export function FilterChips({ value, onChange, fieldsConfig }: FilterChipsProps)
             )}
             <span
               className={
-                'border-primary/20 bg-primary/5 text-foreground hover:bg-primary/10 hover:border-primary/30 inline-flex items-center gap-1.5 rounded-md border py-1 pl-2 pr-1 text-xs shadow-xs transition-[background-color,border-color] duration-150'
+                'border-primary/20 bg-primary/5 text-foreground hover:bg-primary/10 hover:border-primary/30 inline-flex items-center gap-1.5 rounded-md border py-1 pl-2 pr-1 text-xs transition-[background-color,border-color] duration-150'
               }
             >
               {cfg && <FieldTypeIcon type={cfg.type} className="text-primary/70 size-3" />}
               <span className="text-foreground font-medium">
                 {getFieldLabel(fieldsConfig, c.field)}
               </span>
-              <span className="text-muted-foreground">{OPERATOR_LABELS[c.operator]}</span>
+              <span className="text-muted-foreground">{t(`operators.${c.operator}`)}</span>
               {valueText && (
                 <span className="bg-primary/10 text-foreground -mx-0.5 rounded-md px-1.5 py-px text-xs font-medium tabular-nums">
                   {valueText}
@@ -97,7 +102,7 @@ export function FilterChips({ value, onChange, fieldsConfig }: FilterChipsProps)
                   })
                 }
                 className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive ml-0.5 inline-flex size-4 items-center justify-center rounded-sm transition-colors"
-                aria-label="Remove filter"
+                aria-label={t('removeFilter')}
               >
                 <XIcon className="size-3" />
               </button>
@@ -111,7 +116,7 @@ export function FilterChips({ value, onChange, fieldsConfig }: FilterChipsProps)
           onClick={() => onChange({ ...value, conditions: [] })}
           className="text-muted-foreground hover:text-destructive ml-1 text-xs font-medium underline-offset-2 hover:underline"
         >
-          Clear all
+          {t('clearAll')}
         </button>
       )}
     </div>

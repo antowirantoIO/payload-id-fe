@@ -380,6 +380,11 @@
       "countryPlaceholder": "Pilih negara",
       "phone": "Telepon (opsional)",
       "terms": "Saya menyetujui syarat & ketentuan dan kebijakan privasi."
+    },
+    "access": {
+      "secureAccess": "Akses akun aman",
+      "showPassword": "Tampilkan password",
+      "hidePassword": "Sembunyikan password"
     }
   },
   "buyer": {

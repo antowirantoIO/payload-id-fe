@@ -1,14 +1,16 @@
 import createNextIntlPlugin from 'next-intl/plugin'
-import { productPaths } from './src/components/layout/product-paths'
+import { productPaths } from './src/lib/workspace/product-paths'
 export default createNextIntlPlugin()({
   poweredByHeader: false,
   outputFileTracingRoot: process.cwd(),
   turbopack: { root: process.cwd() },
   async redirects() {
-    const aliases = Object.entries(productPaths).map(([capability, destination]) => ({
-      source: `/modules/${capability}`,
-      destination,
-    }))
+    const aliases: { source: string; destination: string }[] = Object.entries(productPaths).map(
+      ([capability, destination]) => ({
+        source: `/modules/${capability}`,
+        destination,
+      }),
+    )
     aliases.push(
       { source: '/features/:slug', destination: '/:slug' },
       { source: '/modules/iam', destination: '/resellers' },
@@ -21,7 +23,7 @@ export default createNextIntlPlugin()({
     return aliases.flatMap((alias) => [
       { ...alias, permanent: false },
       {
-        source: `/:locale(en|id|pt-BR)${alias.source}`,
+        source: `/:locale(en|id)${alias.source}`,
         destination: `/:locale${alias.destination}`,
         permanent: false,
       },

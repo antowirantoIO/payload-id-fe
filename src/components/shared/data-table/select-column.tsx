@@ -10,12 +10,17 @@ import { Checkbox } from '@/components/ui/checkbox'
  * - `enableSorting/Hiding: false` → tidak muncul di view-options & tidak bisa di-sort.
  * - Width default 40px.
  */
-export function selectColumn<TData extends RowData>(): ColumnDef<TData, unknown> {
+export function selectColumn<TData extends RowData>(options?: {
+  pageLabel?: string
+  rowLabel?: (record: TData) => string
+  label?: string
+  enableResizing?: boolean
+}): ColumnDef<TData, unknown> {
   return {
     id: 'select',
     enableSorting: false,
     enableHiding: false,
-    enableResizing: false,
+    enableResizing: options?.enableResizing ?? false,
     size: 40,
     header: ({ table }) => {
       const allSelected = table.getIsAllPageRowsSelected()
@@ -25,7 +30,7 @@ export function selectColumn<TData extends RowData>(): ColumnDef<TData, unknown>
           checked={allSelected}
           indeterminate={!allSelected && someSelected}
           onCheckedChange={(checked) => table.toggleAllPageRowsSelected(Boolean(checked))}
-          aria-label="Select all rows"
+          aria-label={options?.pageLabel ?? 'Select all rows'}
         />
       )
     },
@@ -33,10 +38,10 @@ export function selectColumn<TData extends RowData>(): ColumnDef<TData, unknown>
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(checked) => row.toggleSelected(Boolean(checked))}
-        aria-label="Select row"
+        aria-label={options?.rowLabel?.(row.original) ?? 'Select row'}
         onClick={(e) => e.stopPropagation()}
       />
     ),
-    meta: { label: 'Select' },
+    meta: { label: options?.label ?? 'Select' },
   }
 }

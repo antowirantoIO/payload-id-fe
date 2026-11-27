@@ -1,23 +1,18 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
-import type {
-  ColumnPinningState,
-  RowSelectionState,
-  SortingState,
-  VisibilityState,
-} from '@tanstack/react-table'
 import { DownloadIcon, PlusIcon, RefreshCwIcon } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useTranslations } from 'next-intl'
+import { useMemo } from 'react'
 import { WorkspaceHeader } from '@/components/shared/dashboard/workspace-header'
 import { SaveViewDialog } from '@/components/shared/data-table'
-import { EMPTY_FILTER, type FilterGroup } from '@/components/shared/data-table/filters'
 import { applyTableFilter } from '@/components/shared/data-table/lib/apply-filter'
 import { TableWorkspace } from '@/components/shared/data-table/table-workspace'
 import { WorkspaceSavedViews } from '@/components/shared/data-table/workspace-saved-views'
 import { Button } from '@/components/ui/button'
 import { useRouter } from '@/i18n/navigation'
-import { useMerchantDemo } from '../hooks/use-merchant-demo'
+import { downloadFile } from '@/lib/download'
+import { useMerchantWorkspace } from '../hooks/use-merchant-workspace'
+import { useMerchants } from '../hooks/use-merchants'
 import {
   canTransition,
   exportMerchants,
@@ -25,124 +20,79 @@ import {
   type Merchant,
   type MerchantStatus,
 } from '../lib/model'
-import { merchantFields, merchantSortOptions } from '../lib/table-config'
-import { merchantColumns } from './merchant-columns'
+import { buildMerchantFields, buildMerchantSortOptions } from '../lib/table-config'
+import { buildMerchantColumns } from './merchant-columns'
 import { MerchantStatusDialog } from './merchant-status-dialog'
 
-type Density = 'normal' | 'compact' | 'comfortable'
-type View = {
-  id: string
-  name: string
-  is_default: boolean
-  search: string
-  filter: FilterGroup
-  sorting: SortingState
-  visibility: VisibilityState
-  pinning: ColumnPinningState
-  density: Density
-  tab: string
-}
-const tabs = ['All merchants', 'Onboarding', 'Active', 'Suspended'].map((value) => ({
-  value,
-  label: value,
-}))
-const defaultVisibility = { legal_name: false, updated_at: false }
-const defaultPinning = { left: ['select', 'code'], right: [] }
-
 function download(rows: Merchant[]) {
-  const url = URL.createObjectURL(
-    new Blob([exportMerchants(rows)], { type: 'text/csv;charset=utf-8;' }),
-  )
-  const anchor = document.createElement('a')
-  anchor.href = url
-  anchor.download = 'merchants.csv'
-  anchor.click()
-  URL.revokeObjectURL(url)
+  downloadFile(exportMerchants(rows), 'merchants.csv', 'text/csv;charset=utf-8;')
 }
 
 export function MerchantsPage() {
-  const { rows } = useMerchantDemo()
+  const t = useTranslations('merchants')
+  const tabs = ['all', 'onboarding', 'active', 'suspended'].map((value) => ({
+    value,
+    label: t(`tabs.${value}`),
+  }))
+  const columns = useMemo(() => buildMerchantColumns(t), [t])
+  const fields = useMemo(() => buildMerchantFields(t), [t])
+  const sortOptions = useMemo(() => buildMerchantSortOptions(t), [t])
+  const query = useMerchants()
+  const rows = query.data ?? []
   const router = useRouter()
-  const [search, setSearch] = useState('')
-  const [filter, setFilter] = useState<FilterGroup>(EMPTY_FILTER)
-  const [tab, setTab] = useState('All merchants')
-  const [selection, setSelection] = useState<RowSelectionState>({})
-  const [sorting, setSorting] = useState<SortingState>([{ id: 'created_at', desc: true }])
-  const [visibility, setVisibility] = useState<VisibilityState>(defaultVisibility)
-  const [pinning, setPinning] = useState<ColumnPinningState>(defaultPinning)
-  const [density, setDensity] = useState<Density>('normal')
-  const [notice, setNotice] = useState('')
-  const [change, setChange] = useState<{ ids: string[]; status: MerchantStatus } | null>(null)
-  const [views, setViews] = useState<View[]>([])
-  const [activeViewId, setActiveViewId] = useState<string | null>(null)
-  const [saveOpen, setSaveOpen] = useState(false)
-  const query = useQuery({
-    queryKey: ['merchant-ui-demo'],
-    queryFn: async () => {
-      await new Promise((resolve) => setTimeout(resolve, 300))
-      return true
-    },
-    retry: false,
-  })
+  const {
+    search,
+    setSearch,
+    filter,
+    setFilter,
+    tab,
+    setTab,
+    selection,
+    setSelection,
+    sorting,
+    setSorting,
+    visibility,
+    setVisibility,
+    pinning,
+    setPinning,
+    density,
+    setDensity,
+    notice,
+    setNotice,
+    change,
+    setChange,
+    views,
+    setViews,
+    activeViewId,
+    setActiveViewId,
+    saveOpen,
+    setSaveOpen,
+    sort,
+    resetFilters,
+    applyView,
+    saveView,
+  } = useMerchantWorkspace()
   const filtered = useMemo(
     () =>
       applyTableFilter(
         filterMerchants(rows, search, '', '', '', '').map((row) => ({
           ...row,
-          environment: row.is_sandbox ? 'Sandbox' : 'Production',
+          environment: row.is_sandbox ? 'sandbox' : 'production',
         })),
         filter,
       ).filter(
         (row) =>
-          tab === 'All merchants' ||
-          (tab === 'Onboarding'
+          tab === 'all' ||
+          (tab === 'onboarding'
             ? ['DRAFT', 'PENDING_KYC', 'PENDING_APPROVAL', 'APPROVED'].includes(row.status)
             : row.status === tab.toUpperCase()),
       ),
     [rows, search, filter, tab],
   )
-  const sort =
-    sorting.length !== 1
-      ? 'custom'
-      : sorting[0]?.id === 'created_at'
-        ? sorting[0].desc
-          ? 'newest'
-          : 'oldest'
-        : sorting[0]?.id === 'name'
-          ? sorting[0].desc
-            ? 'name_desc'
-            : 'name_asc'
-          : 'custom'
-  function resetFilters() {
-    setSearch('')
-    setFilter(EMPTY_FILTER)
-    setSelection({})
-    setActiveViewId(null)
-  }
-  function applyView(view: View | null) {
-    if (!view) {
-      resetFilters()
-      setSorting([{ id: 'created_at', desc: true }])
-      setVisibility(defaultVisibility)
-      setPinning(defaultPinning)
-      setDensity('normal')
-      setTab('All merchants')
-      return
-    }
-    setSearch(view.search)
-    setFilter(structuredClone(view.filter))
-    setSorting(structuredClone(view.sorting))
-    setVisibility({ ...view.visibility })
-    setPinning(structuredClone(view.pinning))
-    setDensity(view.density)
-    setTab(view.tab)
-    setSelection({})
-    setActiveViewId(view.id)
-  }
   const savedViews = (
     <WorkspaceSavedViews
-      label="Saved views"
-      hint="Views are stored in this workspace only, not on the server."
+      label={t('savedViews')}
+      hint={t('savedViewsHint')}
       views={views}
       activeViewId={activeViewId}
       onSelect={(view) => applyView(views.find((item) => item.id === view?.id) ?? null)}
@@ -161,9 +111,7 @@ export function MerchantsPage() {
   const bulkChange = (ids: string[], status: MerchantStatus) => {
     const targets = filtered.filter((row) => ids.includes(row.id))
     if (!canTransition(targets, status)) {
-      setNotice(
-        'Status change unavailable: every selected merchant must be eligible. Review the selected statuses.',
-      )
+      setNotice(t('unavailable'))
       return
     }
     setChange({ ids, status })
@@ -171,8 +119,8 @@ export function MerchantsPage() {
   return (
     <div>
       <WorkspaceHeader
-        title="Merchants"
-        description="Manage business profiles, onboarding and merchant lifecycle."
+        title={t('title')}
+        description={t('subtitle')}
         actions={
           <>
             <Button
@@ -182,7 +130,7 @@ export function MerchantsPage() {
               onClick={() => void query.refetch()}
             >
               <RefreshCwIcon className="size-3.5" />
-              Refresh
+              {t('refresh')}
             </Button>
             <Button
               variant="outline"
@@ -191,17 +139,17 @@ export function MerchantsPage() {
               onClick={() => download(filtered)}
             >
               <DownloadIcon className="size-3.5" />
-              Export results
+              {t('exportResults')}
             </Button>
             <Button className="h-9" onClick={() => router.push('/merchants/create')}>
               <PlusIcon className="size-3.5" />
-              Add merchant
+              {t('addMerchant')}
             </Button>
           </>
         }
       />
       <TableWorkspace
-        label="Merchants"
+        label={t('title')}
         tabs={{
           items: tabs,
           value: tab,
@@ -212,7 +160,7 @@ export function MerchantsPage() {
           },
         }}
         notice={notice}
-        columns={merchantColumns}
+        columns={columns}
         data={filtered}
         getRowId={(row) => row.id}
         density={density}
@@ -231,14 +179,14 @@ export function MerchantsPage() {
         columnVisibility={visibility}
         onColumnVisibilityChange={setVisibility}
         onRowClick={(row) => router.push(`/merchants/${row.original.id}`)}
-        emptyMessage="No merchants found. Adjust your filters or add a merchant."
+        emptyMessage={t('empty')}
         error={
           query.isError
             ? {
-                title: 'Unable to load merchants',
-                description: 'Merchant data could not be retrieved. Please try again.',
-                retryLabel: 'Retry',
-                preservedLabel: 'Your filters and local edits have been preserved.',
+                title: t('loadErrorTitle'),
+                description: t('loadErrorDescription'),
+                retryLabel: t('retry'),
+                preservedLabel: t('preserved'),
                 onRetry: () => void query.refetch(),
               }
             : undefined
@@ -246,8 +194,12 @@ export function MerchantsPage() {
         footerSummary={(table) => {
           const { pageIndex, pageSize } = table.getState().pagination
           return query.isPending
-            ? 'Loading merchants…'
-            : `Showing ${filtered.length ? pageIndex * pageSize + 1 : 0}–${Math.min((pageIndex + 1) * pageSize, filtered.length)} of ${filtered.length} merchants`
+            ? t('loading')
+            : t('resultRange', {
+                start: filtered.length ? pageIndex * pageSize + 1 : 0,
+                end: Math.min((pageIndex + 1) * pageSize, filtered.length),
+                total: filtered.length,
+              })
         }}
         toolbar={{
           search,
@@ -262,15 +214,14 @@ export function MerchantsPage() {
             setSelection({})
             setActiveViewId(null)
           },
-          fields: merchantFields,
+          fields,
           quickFields: ['status', 'tier'],
-          sortOptions: merchantSortOptions,
-          searchLabel: 'Search merchants',
-          searchPlaceholder: 'Search merchant name, code, city or ID',
-          multiSearchPlaceholder: 'MERCHANT-0001\nMERCHANT-0002',
-          multiSearchApplyLabel: 'Search merchants',
-          multiSearchDescription:
-            'Search merchant names, codes, cities or IDs. Enter one value per line, or separate values with commas or semicolons. Matches any unique value.',
+          sortOptions,
+          searchLabel: t('search'),
+          searchPlaceholder: t('searchPlaceholder'),
+          multiSearchPlaceholder: 'MRC001\nMRC002',
+          multiSearchApplyLabel: t('search'),
+          multiSearchDescription: t('multiSearchDescription'),
           sort,
           onSort: (value) => {
             if (value === 'custom') return
@@ -287,13 +238,17 @@ export function MerchantsPage() {
         }}
         bulkActions={[
           {
-            label: 'Export selected',
+            label: t('exportSelected'),
             icon: DownloadIcon,
             onSelect: (ids) => download(filtered.filter((row) => ids.includes(row.id))),
           },
           ...(['ACTIVE', 'SUSPENDED', 'TERMINATED'] as const).map((status) => ({
             label:
-              status === 'ACTIVE' ? 'Activate' : status === 'SUSPENDED' ? 'Suspend' : 'Terminate',
+              status === 'ACTIVE'
+                ? t('activate')
+                : status === 'SUSPENDED'
+                  ? t('suspend')
+                  : t('terminate'),
             icon: RefreshCwIcon,
             onSelect: (ids: string[]) => bulkChange(ids, status),
           })),
@@ -303,34 +258,15 @@ export function MerchantsPage() {
         open={saveOpen}
         onOpenChange={setSaveOpen}
         isPending={false}
-        onSubmit={({ name, isDefault }) => {
-          const id = crypto.randomUUID()
-          setViews((previous) => [
-            ...previous.map((view) => (isDefault ? { ...view, is_default: false } : view)),
-            {
-              id,
-              name,
-              is_default: isDefault,
-              search,
-              filter: structuredClone(filter),
-              sorting: structuredClone(sorting),
-              visibility: { ...visibility },
-              pinning: structuredClone(pinning),
-              density,
-              tab,
-            },
-          ])
-          setActiveViewId(id)
-          setSaveOpen(false)
-        }}
+        onSubmit={saveView}
       />
       {change && (
         <MerchantStatusDialog
           ids={change.ids}
           status={change.status}
           onClose={() => setChange(null)}
-          onComplete={() => {
-            setNotice('Merchant status updated.')
+          onComplete={(message) => {
+            setNotice(message ?? t('updated'))
             setChange(null)
             setSelection({})
           }}

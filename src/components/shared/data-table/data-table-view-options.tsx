@@ -9,6 +9,7 @@ import {
   PinOffIcon,
   SlidersHorizontalIcon,
 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -48,6 +49,7 @@ export function DataTableViewOptions<TData>({
   onDensityChange,
   enableColumnPinning,
 }: DataTableViewOptionsProps<TData>) {
+  const t = useTranslations('table')
   const columns = table.getAllLeafColumns().filter((col) => col.getCanHide())
 
   if (columns.length === 0 && !onDensityChange) return null
@@ -58,7 +60,7 @@ export function DataTableViewOptions<TData>({
         render={
           <Button variant="outline" size="sm" className="h-9 gap-1.5 text-sm">
             <SlidersHorizontalIcon className="size-3.5" />
-            View
+            {t('view')}
           </Button>
         }
       />
@@ -70,15 +72,15 @@ export function DataTableViewOptions<TData>({
               value={density ?? 'normal'}
               onValueChange={(v) => onDensityChange(v as Density)}
             >
-              <DropdownMenuLabel>Density</DropdownMenuLabel>
+              <DropdownMenuLabel>{t('density')}</DropdownMenuLabel>
               <DropdownMenuRadioItem value="compact" className="text-xs">
-                Compact
+                {t('compact')}
               </DropdownMenuRadioItem>
               <DropdownMenuRadioItem value="normal" className="text-xs">
-                Normal
+                {t('normal')}
               </DropdownMenuRadioItem>
               <DropdownMenuRadioItem value="comfortable" className="text-xs">
-                Comfortable
+                {t('comfortable')}
               </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
             {columns.length > 0 && <DropdownMenuSeparator />}
@@ -91,7 +93,7 @@ export function DataTableViewOptions<TData>({
             <DropdownMenuLabel>
               <span className="inline-flex items-center gap-1.5">
                 <Columns3Icon className="size-3.5" />
-                Toggle columns
+                {t('toggleColumns')}
               </span>
             </DropdownMenuLabel>
             {columns.map((col) => {
@@ -110,7 +112,7 @@ export function DataTableViewOptions<TData>({
                     <DropdownMenuSub>
                       <DropdownMenuSubTrigger
                         className="size-7 shrink-0 justify-center px-0"
-                        aria-label={`Pin ${header}`}
+                        aria-label={t('pin', { column: String(header) })}
                       >
                         <PinIcon
                           className={cn(
@@ -126,7 +128,7 @@ export function DataTableViewOptions<TData>({
                           className="text-xs"
                         >
                           <ArrowLeftToLineIcon className="size-3.5" />
-                          Pin to left
+                          {t('pinLeft')}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onSelect={() => col.pin('right')}
@@ -134,7 +136,7 @@ export function DataTableViewOptions<TData>({
                           className="text-xs"
                         >
                           <ArrowRightToLineIcon className="size-3.5" />
-                          Pin to right
+                          {t('pinRight')}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
@@ -143,7 +145,7 @@ export function DataTableViewOptions<TData>({
                           className="text-xs"
                         >
                           <PinOffIcon className="size-3.5" />
-                          Unpin
+                          {t('unpin')}
                         </DropdownMenuItem>
                       </DropdownMenuSubContent>
                     </DropdownMenuSub>

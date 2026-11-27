@@ -17,6 +17,7 @@ import {
   useReactTable,
   type VisibilityState,
 } from '@tanstack/react-table'
+import { useTranslations } from 'next-intl'
 import type { ReactNode } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -66,6 +67,10 @@ interface DataTableProps<TData, TValue> {
   enableColumnPinning?: boolean
   stickyHeader?: boolean
   footerSummary?: ReactNode | ((table: import('@tanstack/react-table').Table<TData>) => ReactNode)
+  paginationLabel?: string
+  selectionLabel?: string
+  sortLabel?: string
+  bulkBarVariant?: 'default' | 'soft'
 
   // bulk bar
   bulkActions?: React.ComponentProps<typeof DataTableBulkBar<TData>>['actions']
@@ -101,16 +106,20 @@ export function DataTable<TData, TValue>({
   isFetching,
   errorContent,
   toolbar,
-  emptyMessage = 'Tidak ada data.',
+  emptyMessage,
   density = 'normal',
   enableColumnResize = false,
   enableColumnPinning = false,
   stickyHeader = false,
   footerSummary,
+  paginationLabel,
+  selectionLabel,
+  bulkBarVariant,
   bulkActions,
   getRowId,
   onRowClick,
 }: DataTableProps<TData, TValue>) {
+  const t = useTranslations('table')
   const isServerSide = pagination !== undefined
 
   const table = useReactTable({
@@ -153,7 +162,13 @@ export function DataTable<TData, TValue>({
     <div className="space-y-3">
       {typeof toolbar === 'function' ? toolbar(table) : toolbar}
       {!errorContent && hasSelection && bulkActions && (
-        <DataTableBulkBar table={table} actions={bulkActions} getRowId={getRowId} />
+        <DataTableBulkBar
+          table={table}
+          actions={bulkActions}
+          getRowId={getRowId}
+          selectionLabel={selectionLabel}
+          variant={bulkBarVariant}
+        />
       )}
       {errorContent ? (
         errorContent
@@ -167,10 +182,7 @@ export function DataTable<TData, TValue>({
             }}
           >
             <TableHeader
-              className={cn(
-                'bg-surface/60 backdrop-blur supports-[backdrop-filter]:bg-surface/50',
-                stickyHeader && 'sticky top-0 z-20 bg-card',
-              )}
+              className={cn('bg-surface', stickyHeader && 'sticky top-0 z-20 bg-surface')}
             >
               {table.getHeaderGroups().map((hg) => (
                 <TableRow key={hg.id} className="hover:bg-transparent">
@@ -211,7 +223,7 @@ export function DataTable<TData, TValue>({
                             type="button"
                             onMouseDown={header.getResizeHandler()}
                             onTouchStart={header.getResizeHandler()}
-                            aria-label="Resize column"
+                            aria-label={t('resizeColumn')}
                             className={cn(
                               'absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none transition-opacity',
                               'opacity-0 group-hover/header:opacity-100 hover:bg-primary',
@@ -306,9 +318,9 @@ export function DataTable<TData, TValue>({
                   <TableCell colSpan={columns.length} className="h-44 text-center">
                     <div className="mx-auto flex max-w-sm flex-col items-center justify-center gap-2 px-4">
                       <div className="h-px w-8 bg-border" />
-                      <p className="font-medium text-foreground text-sm">No records found</p>
+                      <p className="font-medium text-foreground text-sm">{t('noRecords')}</p>
                       <p className="text-muted-foreground text-xs leading-relaxed">
-                        {emptyMessage}
+                        {emptyMessage ?? t('emptyMessage')}
                       </p>
                     </div>
                   </TableCell>
@@ -321,6 +333,7 @@ export function DataTable<TData, TValue>({
       {!errorContent && (
         <DataTablePagination
           table={table}
+          navigationLabel={paginationLabel}
           summary={typeof footerSummary === 'function' ? footerSummary(table) : footerSummary}
         />
       )}

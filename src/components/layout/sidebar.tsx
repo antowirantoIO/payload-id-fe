@@ -1,6 +1,5 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
 import { ChevronDownIcon, ChevronsLeftIcon, LogOutIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useId, useState } from 'react'
@@ -8,17 +7,19 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { profileOptions } from '@/features/account/client'
 import { useLogout } from '@/features/auth/client'
 import { Link, usePathname } from '@/i18n/navigation'
+import type { WorkspaceProfile } from '@/lib/auth/workspace'
 import { cn } from '@/lib/utils'
+import { featureNavigation } from '@/lib/workspace/features'
 import { useUIStore } from '@/stores/ui-store'
-import { featureNavigation } from './features'
+import { accountInitials } from './account-initials'
+import { workspaceIcon } from './workspace-icons'
 
 interface SidebarProps {
   email: string
   name?: string | null
-  role?: string
+  profile?: WorkspaceProfile
 }
 
 function Brand({ collapsed = false }: { collapsed?: boolean }) {
@@ -43,13 +44,14 @@ function Brand({ collapsed = false }: { collapsed?: boolean }) {
 function Navigation({
   collapsed = false,
   onNavigate,
+  profile,
 }: {
   collapsed?: boolean
   onNavigate?: () => void
+  profile?: WorkspaceProfile
 }) {
   const t = useTranslations('dashboardChrome')
   const pathname = usePathname()
-  const { data: profile } = useQuery(profileOptions())
   const groups = featureNavigation(profile)
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
   const navigationId = useId()
@@ -67,7 +69,7 @@ function Navigation({
           )}
           {group.items.map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`)
-            const Icon = item.icon
+            const Icon = workspaceIcon(item.key)
             const open = expanded[item.href] ?? Boolean(active)
             const panelId = `${navigationId}-${item.href.replaceAll('/', '-')}`
             if (!collapsed && item.children.length > 0) {
@@ -79,9 +81,9 @@ function Navigation({
                     aria-controls={panelId}
                     onClick={() => setExpanded((previous) => ({ ...previous, [item.href]: !open }))}
                     className={cn(
-                      'flex min-h-11 w-full items-center gap-2.5 rounded-md px-2.5 text-left text-sm leading-5 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-ring',
+                      'flex min-h-11 w-full items-center gap-2.5 rounded-sm px-2.5 text-left text-sm leading-5 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-ring',
                       active
-                        ? 'bg-primary/10 text-primary'
+                        ? 'bg-accent text-accent-foreground'
                         : 'text-muted-foreground hover:bg-accent hover:text-foreground',
                     )}
                   >
@@ -121,10 +123,10 @@ function Navigation({
                 aria-label={collapsed ? t(item.label) : undefined}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'flex min-h-11 items-center gap-2.5 rounded-md text-sm leading-5 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-ring',
+                  'flex min-h-11 items-center gap-2.5 rounded-sm text-sm leading-5 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-ring',
                   collapsed ? 'justify-center' : 'px-2.5',
                   active
-                    ? 'bg-primary/10 text-primary'
+                    ? 'bg-accent text-accent-foreground'
                     : 'text-muted-foreground hover:bg-accent hover:text-foreground',
                 )}
               >
@@ -150,12 +152,7 @@ function Navigation({
 function Account({ email, name, collapsed = false }: SidebarProps & { collapsed?: boolean }) {
   const t = useTranslations('dashboardChrome')
   const { logout, isPending } = useLogout()
-  const initials = (name || email)
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join('')
-    .toUpperCase()
+  const initials = accountInitials(name, email)
   return (
     <div className="shrink-0 border-t border-border p-2">
       {!collapsed && (
@@ -191,7 +188,7 @@ export function Sidebar(props: SidebarProps) {
     <TooltipProvider>
       <aside
         className={cn(
-          'sticky top-0 z-20 hidden h-svh shrink-0 flex-col border-r border-border bg-[#f1f5f3] text-sidebar-foreground transition-[width] dark:bg-sidebar md:flex',
+          'sticky top-0 z-20 hidden h-svh shrink-0 flex-col border-r border-border bg-sidebar text-sidebar-foreground transition-[width] md:flex',
           open ? 'w-64' : 'w-[60px]',
         )}
       >
@@ -206,7 +203,7 @@ export function Sidebar(props: SidebarProps) {
             <ChevronsLeftIcon className={cn('size-4', !open && 'rotate-180')} />
           </Button>
         </div>
-        <Navigation collapsed={!open} />
+        <Navigation profile={props.profile} collapsed={!open} />
         <Account {...props} collapsed={!open} />
       </aside>
     </TooltipProvider>
@@ -224,14 +221,14 @@ export function MobileSidebar({ open, onOpenChange, ...props }: MobileSidebarPro
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="left"
-        className="flex w-72 flex-col gap-0 bg-[#f1f5f3] p-0 dark:bg-sidebar"
+        className="flex w-72 flex-col gap-0 bg-sidebar p-0"
         aria-label={t('featureNavigation')}
       >
         <SheetTitle className="sr-only">{t('featureNavigation')}</SheetTitle>
         <div className="flex h-14 shrink-0 items-center border-b border-border px-4">
           <Brand />
         </div>
-        <Navigation onNavigate={() => onOpenChange(false)} />
+        <Navigation profile={props.profile} onNavigate={() => onOpenChange(false)} />
         <Account {...props} />
       </SheetContent>
     </Sheet>

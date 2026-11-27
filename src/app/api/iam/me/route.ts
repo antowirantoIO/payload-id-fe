@@ -1,13 +1,9 @@
 import type { NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
 import { iamRequest } from '@/lib/api/server'
+import { getBackendSession } from '@/lib/auth/server-session'
 export async function GET(request: NextRequest) {
-  const token = await getToken({
-    req: request,
-    secret: process.env.AUTH_SECRET,
-    secureCookie: new URL(process.env.AUTH_URL ?? request.url).protocol === 'https:',
-  })
-  if (!token?.backendToken || !token.backendExpires || Date.now() >= token.backendExpires) {
+  const token = await getBackendSession(request)
+  if (!token) {
     return Response.json({ code: 'UNAUTHORIZED' }, { status: 401 })
   }
   try {
